@@ -2,6 +2,7 @@ import { Recipe } from './recipe.model';
 import { EventEmitter, Injectable } from '@angular/core';
 import { Ingredient } from '../shared/ingridient.model';
 import { ShoppingListService } from '../shopping-list/shopping-list.service';
+import { NULL_EXPR } from '@angular/compiler/src/output/output_ast';
 
 @Injectable()
 export class RecipeService {
@@ -25,6 +26,11 @@ export class RecipeService {
              new Ingredient('Tomats', 10)])
     ];
 
+
+    addRecipeToList(recipe: Recipe){
+        this.recipes.push(recipe);
+    }
+
     getRecipes(){
         return this.recipes.slice();
     }
@@ -35,6 +41,14 @@ export class RecipeService {
 
     addIngredientsToSL(ingredients: Ingredient[]){
         this.slService.addIngredients(ingredients);
+    }
+    
+    DeleteRecipe(recipe: Recipe){
+       for (let index = 0; index < this.recipes.length; index++) {
+           if (this.recipes[index].name == recipe.name) {
+               delete(this.recipes[index]);
+           }
+       }
     }
 
 }
