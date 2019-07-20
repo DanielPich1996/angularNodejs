@@ -13,6 +13,11 @@ export class RecipeListComponent implements OnInit {
   constructor(private recipeService: RecipeService) { }
 
   ngOnInit() {
-    this.recipes = this.recipeService.getRecipes();
+     this.recipeService.getAllRecipes().subscribe(new_recipes => {
+       
+            this.recipes = new_recipes
+       }, err => 
+       console.log(err)
+       ); 
   }
 }
