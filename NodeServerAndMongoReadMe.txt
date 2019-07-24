@@ -1,6 +1,6 @@
 mongoDB->
 
-First install MongoDB Compass from: https://www.mongodb.com/download-center/compass?jmp=docs
+First install MongoDB Compass from: https://www.mongodb.com/download-center/community
 
 1. go to: C:\Program Files\MongoDB\Server\4.0\bin
 2. open a PowerShell or Console in that folder

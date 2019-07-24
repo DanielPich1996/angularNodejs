@@ -23,7 +23,14 @@ export class RecipeDetailComponent implements OnInit {
     });
   }
 
+  onAddNewRecipe(){
+    this.recipeService.addRecipeToList(this.recipe);
+  }
+
   onAddToShoppingList(){
     this.recipeService.addIngredientsToSL(this.recipe.ingredients);
+  }
+  onDeleteRecipe(){
+    this.recipeService.DeleteRecipe(this.recipe);
   }
 }
