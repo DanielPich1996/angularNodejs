@@ -3,7 +3,7 @@ import { NgModule } from '@angular/core';
 import { AppRoutingModule } from './app-routing.module';
 
 import { HttpModule, BrowserXhr } from '@angular/http'
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { AppComponent } from './app.component';
 import { HeaderComponent } from './header/header.component';
@@ -19,7 +19,8 @@ import { RecipeDetailComponent } from './recipes/recipe-detail/recipe-detail.com
 
 import { CustExtBrowserXhr } from 'src/cust-ext-browser-xhr';
 
-import { from } from 'rxjs';
+import { RecipeEditComponent } from './recipes/recipe-edit/recipe-edit.component';
+import { RecipeService } from './recipes/recipe.service';
 
 @NgModule({
   declarations: [
@@ -32,15 +33,17 @@ import { from } from 'rxjs';
     RecipeStartComponent,
     RecipeListComponent,
     RecipeItemComponent,
-    RecipeDetailComponent
+    RecipeDetailComponent,
+    RecipeEditComponent
   ],
   imports: [
     BrowserModule,
     FormsModule, 
     AppRoutingModule,
-    HttpModule
+    HttpModule,
+    ReactiveFormsModule
   ],
-  providers: [ShoppingListService,
+  providers: [ShoppingListService, RecipeService,
     {provide: BrowserXhr, useClass:CustExtBrowserXhr},],
   bootstrap: [AppComponent]
 })
