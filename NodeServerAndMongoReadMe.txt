@@ -13,8 +13,10 @@ First install MongoDB Compass from: https://www.mongodb.com/download-center/comm
 {"_id":"5d332ade2c9f3501d0be03c2","name":"Pasta","description":"For vegans","image_path":"https://ichef.bbci.co.uk/food/ic/food_16x9_832/recipes/one_pot_chorizo_and_15611_16x9.jpg","ingredients":{"5d332b5f2c9f3501d0be03cd":5,"5d332b652c9f3501d0be03ce":10}}]
 )"
 8. type the command: "db.ingredients.insert([{"_id":"5d31fe7f13c11734dc3afbb1","name":"Bread"}, {"_id":"5d31fea0a99d0534dcde6c32","name":"Meat"}, {"_id":"5d332b5f2c9f3501d0be03c3","name":"Pasta"}, {"_id":"5d332b652c9f3501d0be03c4","name":"Tomats"}])"
-
-
+9. type the command: "db.users.insert([{"_id":"5d45426dbf5a4614d8a02031","userName":"alice","email":"alice@gmail.com","password":"123456"},{"_id":"5d454539bf5a4614d8a02032","userName":"raz","email":"raz@gmail.com","password":"123456"},{"_id":"5d45456bbf5a4614d8a02033","userName":"daniel","email":"daniel@gmail.com","password":"123456"}])"
+10. 
+ db.shoppingList.insert([{"_id":"5d31fd6659522c5b648a5","userId":"5d45426dbf5a4614d8a02031","ingredients":{"5d31fea0a99d0534dcde6c3a":1,"5d31fe7f13c11734dc3afbbb":2}},
+{"_id":"5d332ade2c9f3501d0be0","userId":"5d454539bf5a4614d8a02032","ingredients":{"5d332b5f2c9f3501d0be03cd":5,"5d332b652c9f3501d0be03ce":10}}])
 
 NodeJS server->
 
