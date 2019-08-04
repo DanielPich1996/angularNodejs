@@ -39,6 +39,8 @@ name: { type: String },
 
 
 var model = mongo.model('recipes', UserSchema, 'recipes');
+var modelUsers = mongo.model('uers', UserSchema, 'users');
+var modelShoppingList = mongo.model('shoppingList', UserSchema, 'shoppingList');
 
 
 // In line 36–87 we have defined our API calls, which allow us to store, update, find and delete the user data from the database.
@@ -99,6 +101,43 @@ app.post("/api/getUser", function(req,res){
 
 app.get("/api/getAllRecipes", function(req,res){
     model.find({}, function(err,data) {
+        if(err){
+            res.send(err);
+        }
+        else {
+            res.send(data);
+        }
+    });
+})
+
+app.get("/api/getAllUsers", function(req,res){
+    modelUsers.find({}, function(err,data) {
+        if(err){
+            res.send(err);
+        }
+        else {
+            res.send(data);
+        }
+    });
+})
+
+app.get("/api/getAllShoppingLists", function(req,res){
+    modelShoppingList.find({}, function(err,data) {
+        if(err){
+            res.send(err);
+        }
+        else {
+            res.send(data);
+        }
+    });
+})
+
+app.get("/api/getShoppingListById", function(req,res){
+	var uid = "5d45426dbf5a4614d8a02031";
+	//findOne({userId: req.body.id},
+	//findOne({userId: uid},
+	//var id = req.params.id
+    modelShoppingList.findOne({userId: id}, function(err,data) {
         if(err){
             res.send(err);
         }
