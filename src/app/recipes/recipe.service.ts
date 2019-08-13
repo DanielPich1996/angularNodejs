@@ -7,6 +7,7 @@ import { Observable } from 'rxjs';
 import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/do';
+import { response } from 'express';
 
 
 @Injectable()
@@ -96,5 +97,27 @@ export class RecipeService {
     deleteRecipe(index: number){
         this.recipes.splice(index, 1);
         this.recipesChanged.next(this.recipes.slice());
+    }
+
+    getRecipeById(id: number): Observable<Recipe>{
+       return this.http.get("http://localhost:8080/api/getRecipesById/?id=5d45426dbf5a4614d8a02031").map(response => {
+        const json = response.json();
+        var ingredients_array:Ingredient[] = []
+        var ingredients_keys = Object.keys(json.ingredients)
+              
+        for (let ing_index = 0; ing_index < ingredients_keys.length; ing_index++) {
+            var ingredient_key = ingredients_keys[ing_index]
+            var ingredient_amount = json.ingredients[ingredient_key]
+            ingredients_array.push(new Ingredient(ingredient_key, ingredient_key,ingredient_amount))
+        }
+
+        const recipe = new Recipe(json["_id"], 
+                                  json["name"], 
+                                  json["description"],
+                                  json["image_path"], 
+                                  ingredients_array);
+        console.log(recipe);
+        return recipe;
+       });
     }
 }

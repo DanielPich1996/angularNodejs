@@ -21,6 +21,7 @@ import { CustExtBrowserXhr } from 'src/cust-ext-browser-xhr';
 
 import { RecipeEditComponent } from './recipes/recipe-edit/recipe-edit.component';
 import { RecipeService } from './recipes/recipe.service';
+import { RecipeResolver } from './recipes/recipeResolver';
 
 @NgModule({
   declarations: [
@@ -43,7 +44,7 @@ import { RecipeService } from './recipes/recipe.service';
     HttpModule,
     ReactiveFormsModule
   ],
-  providers: [ShoppingListService, RecipeService,
+  providers: [ShoppingListService, RecipeService, RecipeResolver,
     {provide: BrowserXhr, useClass:CustExtBrowserXhr},],
   bootstrap: [AppComponent]
 })
