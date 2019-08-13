@@ -25,14 +25,15 @@ export class RecipeEditComponent implements OnInit {
     this.route.params.subscribe((params: Params) => {
       this.editMode = params['id'] != null;
       this.id = +params['id'];
-
-      const tmpRecipe = this.recipeService.getRecipe(this.id);
-      if (typeof tmpRecipe === 'undefined' && this.editMode) {
-        this.router.navigate(['/recipes'])
-      } else {
-        this.recipe = tmpRecipe; 
-        this.initForm();
-      }   
+      this.recipe = this.route.snapshot.data.recipe;
+      this.initForm(); 
+      // const tmpRecipe = this.recipeService.getRecipe(this.id);
+      // if (typeof tmpRecipe === 'undefined' && this.editMode) {
+      //   this.router.navigate(['/recipes'])
+      // } else {
+      //   this.recipe = tmpRecipe; 
+      //   this.initForm();
+      // }   
     });
   }
 

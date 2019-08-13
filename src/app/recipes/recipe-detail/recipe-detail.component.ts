@@ -19,15 +19,16 @@ export class RecipeDetailComponent implements OnInit {
               private router: Router) { }
 
   ngOnInit() {
-    this.route.params.subscribe((params: Params) => {
-      this.id = +params['id'];
-      const tmpRecipe = this.recipeService.getRecipe(this.id);
-      if (typeof tmpRecipe === 'undefined') {
-        this.router.navigate(['/recipes'])
-      } else {
-        this.recipe = tmpRecipe;
-      }   
-    });
+    this.recipe = this.route.snapshot.data.recipe;
+    // this.route.params.subscribe((params: Params) => {
+    //   this.id = +params['id'];
+    //   const tmpRecipe = this.recipeService.getRecipe(this.id);
+    //   if (typeof tmpRecipe === 'undefined') {
+    //     this.router.navigate(['/recipes'])
+    //   } else {
+    //     this.recipe = tmpRecipe;
+    //   }   
+    // });
   }
 
   onEditRecipe(){
