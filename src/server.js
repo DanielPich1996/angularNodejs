@@ -55,43 +55,17 @@ var modelShoppingList = mongo.model('shoppingList', UserSchema, 'shoppingList');
 // <------------------------------------Recipes------------------------------------------------------------------------------------->
 
 // Get all recipes and full user data of the creator of the recipe
-app.get("/api/getAllRecipes", function(req,res){
-		
-	modelRecipes.aggregate([
-		{ $lookup:
-			{
-				from: 'users',
-				localField: '_user_id',
-				foreignField: '_id',
-				as: 'user'
-			}
-		}], (err,results) => {
-			
-			 if(err){
-				console.log(err);
-				res.send("-1");
-			}
-			else {
-				console.log(results.length + " match recipes were found");
-				res.send(results);
-			}
-		})
+app.get("/api/getAllRecipes", function(req,res) {
+    getAllRecipes(function(data) {        
+        res.send(data);
+    });	
 })
 
 // Get user's recipes by user id
-app.get("/api/getAllUserRecipes", function(req,res){
-	
-	var id = req.query.userId;
-	modelRecipes.find({_user_id: id}, function(err,data) {
-        if(err){
-			console.log(err);
-            res.send("-1");
-        }
-        else {
-			console.log(data.length + " match recipes were found for user id " + id);
-            res.send(data);
-        }
-    });
+app.get("/api/getAllUserRecipes", function(req,res) {    
+    getAllUserRecipes(req.query.userId, function(data) {        
+        res.send(data);
+    });	
 })
 
 // Get recipe by id
@@ -112,6 +86,49 @@ app.get("/api/getRecipe", function(req,res){
             res.send(data);
         }
     });
+})
+
+// Get recipe by name
+app.get("/api/getRecipeByName", function(req,res){
+	
+	var recipeName = req.query.name;
+	modelRecipes.findOne({name: recipeName}, function(err,data) {
+        if(err || data == null){
+			console.log("A recipe with the name " + recipeName + " wasn't found");
+			
+			if(err != null)
+				console.log(err);
+			
+            res.send("-1");
+        }
+        else {
+			console.log("Got recipe by name " + recipeName);
+            res.send(data);
+        }
+    });
+})
+
+// Get recipe by free search text
+app.get("/api/searchRecipe", function(req,res){
+    
+    var searchString = req.query.string;
+    var isCaseSensitive = req.query.isCaseSensitive == undefined ? true : req.query.isCaseSensitive == "true";
+    var userId = req.query.userId
+
+    // Search by a user id
+    if (userId != undefined) {
+         getAllUserRecipes(userId, function(recipes) {
+            var matchRecipes = getMatchRecipes(recipes, searchString, isCaseSensitive) 
+            res.send(matchRecipes);
+        }, false)
+    }
+    // Search by all exist recipes
+    else {
+        getAllRecipes(function(recipes) {
+            var matchRecipes = getMatchRecipes(recipes, searchString, isCaseSensitive) 
+            res.send(matchRecipes);
+        }, false)
+    }		
 })
 
 // Remove recipe by id
@@ -204,6 +221,85 @@ app.get("/api/updateRecipe", function(req,res){
     } 
 })
 
+// Getting all existing recipes
+function getAllRecipes(callback, printToConsole = true) {
+
+    console.log("Getting all recipes")
+    modelRecipes.aggregate([
+		{ $lookup:
+			{
+				from: 'users',
+				localField: '_user_id',
+				foreignField: '_id',
+				as: 'user'
+			}
+		}], (err,results) => {
+			 if(err){                
+                console.log(err);
+                callback("-1");
+			}
+			else {
+                if(printToConsole) { console.log(results.length + " match recipes were found") }
+                callback(results);
+			}
+		})
+}
+
+// Getting all existing recipes by user id
+function getAllUserRecipes(userId, callback, printToConsole = true) {
+
+    console.log("Getting all recipes by user id " + userId)
+	modelRecipes.find({_user_id: userId}, function(err,data) {
+        if(err){
+			console.log(err);
+            callback("-1");
+        }
+        else {
+			if(printToConsole) { console.log(data.length + " match recipes were found for user id " + userId) }
+            callback(data);
+        }
+    });
+}
+
+// Getting match recipes by a search string and a given recipes list
+function getMatchRecipes(recipes, searchString, isCaseSensitive) {
+
+    if (recipes != null) {
+        var matchRecipes = []
+
+        for (var i = 0; i < recipes.length; i++) { 
+    
+            var isMatch = isRecipeMatch(recipes[i], searchString, isCaseSensitive)
+            if(isMatch) { matchRecipes.push(recipes[i]) }
+        }
+    
+        console.log(matchRecipes.length + " match recipes were found to the search '" 
+        + searchString + "' " + (isCaseSensitive ? "with" : "without") + " case-sensitive")
+        return matchRecipes
+    }
+    else {
+        return "-1"
+    }     
+}
+
+// Checking if the given recipe contains the search string in any property
+function isRecipeMatch(recipe, string, isCaseSensitive = true) {
+
+    string = isCaseSensitive ? string : string.toLowerCase()
+    var name = isCaseSensitive ? recipe.name : recipe.name.toLowerCase()
+    var description =  isCaseSensitive ? recipe.description : recipe.description.toLowerCase()
+
+    if (name.includes(string)) { return true }
+    if (description.includes(string)) { return true }
+
+    for (var i = 0; i < recipe.ingredients.length; i++) { 
+
+        var ingredient = isCaseSensitive ? recipe.ingredients[i] : recipe.ingredients[i].toLowerCase()
+        if (ingredient.includes(string)) { return true }
+    }
+    
+    return false
+}
 
 
 // <------------------------------------Users--------------------------------------------------------------------------------------->
