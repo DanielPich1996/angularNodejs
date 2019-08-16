@@ -122,7 +122,7 @@ app.get("/api/searchRecipe", function(req,res){
             res.send(matchRecipes);
         }, false)
     }
-    // Search by all exist recipes
+    // Search by all existing recipes
     else {
         getAllRecipes(function(recipes) {
             var matchRecipes = getMatchRecipes(recipes, searchString, isCaseSensitive) 
@@ -186,7 +186,7 @@ app.get("/api/addNewRecipe", function(req,res){
     } 
 })
 
-// update recipe
+// Update recipe
 app.get("/api/updateRecipe", function(req,res){
 
     console.log(req.query);
