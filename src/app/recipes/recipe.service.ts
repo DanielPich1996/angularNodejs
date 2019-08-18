@@ -7,7 +7,6 @@ import { Observable } from 'rxjs';
 import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/do';
-import { response } from 'express';
 
 
 @Injectable()
@@ -21,62 +20,32 @@ export class RecipeService {
 
     getAllRecipes(): Observable<Recipe[]> {
         
-    return this.http.get('http://localhost:8080/api/getAllRecipes/')
-        .map((response: Response) => {
-            
-            var res = response.json()
-            var recipes:Recipe[] =[]
+        return this.http.get('http://localhost:8080/api/getAllRecipes/')
+            .map((response: Response) => {
 
-            for (let index = 0; index < res.length; index++) {
-                const recipe_data = res[index];
+                var res = response.json()
+                var recipes:Recipe[] =[]
 
-                var recipe_id = recipe_data._id
-                var recipe_name = recipe_data.name
-                var recipe_description = recipe_data.description
-                var recipe_image_path = recipe_data.image_path
+                for (let index = 0; index < res.length; index++) {
+                    const recipe_data = res[index];
 
-                var ingredients_array:Ingredient[] = []
-                var ingredients_keys = Object.keys(recipe_data.ingredients)
-              
-                for (let ing_index = 0; ing_index < ingredients_keys.length; ing_index++) {
-                    var ingredient_key = ingredients_keys[ing_index]
-                    var ingredient_amount = recipe_data.ingredients[ingredient_key];
+                    var recipe_id = recipe_data._id;
+                    var recipe_name = recipe_data.name;
+                    var recipe_description = recipe_data.description;
+                    var recipe_image_path = recipe_data.image_path;
+                    var ingredients_array = recipe_data.ingredients;
+                    console.log(recipe_data.ingredients);
 
-                    ingredients_array.push(new Ingredient(ingredient_key, ingredient_key,ingredient_amount))
+                    recipes.push(new Recipe(recipe_id, recipe_name, recipe_description, recipe_image_path, ingredients_array))
                 }
-
-                recipes.push(new Recipe(recipe_id, recipe_name, recipe_description, recipe_image_path, ingredients_array))
-            }
-
-            this.recipes = recipes
-            return recipes
-        })
-    }
-
-    getRecipe(index: number){
-        if(typeof this.recipes === 'undefined') {
-            return undefined
-        }
-        else {
-            return this.recipes[index];
-        }
-        
+                console.log(recipes)
+                this.recipes = recipes
+                return recipes
+            });
     }
 
     addIngredientsToSL(ingredients: Ingredient[]){
         this.slService.addIngredients(ingredients);
-    }
-    
-    // DeleteRecipe(recipe: Recipe){
-    //    for (let index = 0; index < this.recipes.length; index++) {
-    //        if (this.recipes[index].name == recipe.name) {
-    //            this.recipes.splice(index, 1);
-    //        }
-    //    }
-    // }
-
-    addRecipeToList(recipe: Recipe){
-        this.recipes.push(recipe);
     }
 
     getRecipes(){
@@ -85,39 +54,81 @@ export class RecipeService {
 
 
     addRecipe(recipe: Recipe){
-        this.recipes.push(recipe);
-        this.recipesChanged.next(this.recipes.slice());
+        let ingredients = '';
+
+        for (let ing of recipe.ingredients){
+            ingredients += ing.name + ":" + ing.amount + ",";
+        }
+        ingredients = ingredients.slice(0, -1);
+
+        return this.http.get("http://localhost:8080/api/addNewRecipe?userId=5d31fe7f13c11734dc3afbb1"+
+                      "&&name=" + recipe.name + 
+                      "&&description=" + recipe.description + 
+                      "&&image_path=" + recipe.imagePath + 
+                      "&&ingredients=" + ingredients).map(
+            data => {
+                let newRecipe = recipe;
+                newRecipe.id = data.json();
+                this.recipes.push(newRecipe);
+                this.recipesChanged.next(this.recipes.slice());
+            }
+        );  
     }
 
-    updateRecipe(index: number, newRecipe: Recipe){
-        this.recipes[index] = newRecipe;
-        this.recipesChanged.next(this.recipes.slice());
+    updateRecipe(id: string, newRecipe: Recipe){
+        let ingredients = '';
+
+        for (let ing of newRecipe.ingredients){
+            ingredients += ing.name + ":" + ing.amount + ",";
+        }
+        ingredients = ingredients.slice(0, -1);
+
+        return this.http.get("http://localhost:8080/api/updateRecipe?id=" + id +
+                      "&&name=" + newRecipe.name +              
+                      "&&description=" + newRecipe.description + 
+                      "&&image_path=" + newRecipe.imagePath + 
+                      "&&ingredients=" + ingredients).map(
+            data => {
+              for(let i = 0; i< this.recipes.length; i++){
+                  if (this.recipes[i].id === id){
+                    this.recipes[i] = newRecipe;
+                    this.recipes[i].id = id;
+                  }
+              }
+              this.recipesChanged.next(this.recipes.slice());
+            }
+        ); 
     }
 
-    deleteRecipe(index: number){
-        this.recipes.splice(index, 1);
-        this.recipesChanged.next(this.recipes.slice());
+    deleteRecipe(id: String){
+        return this.http.get("http://localhost:8080/api/deleteRecipe?id=" + id).map(res => {
+            let index;
+            for(let i = 0; i< this.recipes.length; i++){
+                if (this.recipes[i].id === id){
+                  index = 1
+                }
+            }
+
+            this.recipes.splice(index, 1);
+            this.recipesChanged.next(this.recipes.slice());
+        });
     }
 
     getRecipeById(id: number): Observable<Recipe>{
-       return this.http.get("http://localhost:8080/api/getRecipesById/?id=5d45426dbf5a4614d8a02031").map(response => {
+       return this.http.get("http://localhost:8080/api/getRecipe/?id=" + id).map(response => {
         const json = response.json();
-        var ingredients_array:Ingredient[] = []
-        var ingredients_keys = Object.keys(json.ingredients)
-              
-        for (let ing_index = 0; ing_index < ingredients_keys.length; ing_index++) {
-            var ingredient_key = ingredients_keys[ing_index]
-            var ingredient_amount = json.ingredients[ingredient_key]
-            ingredients_array.push(new Ingredient(ingredient_key, ingredient_key,ingredient_amount))
-        }
+        if (json != -1) {
 
-        const recipe = new Recipe(json["_id"], 
-                                  json["name"], 
-                                  json["description"],
-                                  json["image_path"], 
-                                  ingredients_array);
-        console.log(recipe);
-        return recipe;
+            const recipe = new Recipe(json["_id"], 
+                                      json["name"], 
+                                      json["description"],
+                                      json["image_path"], 
+                                      json["ingredients"]);
+            console.log(recipe);
+            return recipe;
+        } else {
+            return null
+        }        
        });
     }
 }

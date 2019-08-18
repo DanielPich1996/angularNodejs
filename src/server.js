@@ -157,11 +157,17 @@ app.get("/api/addNewRecipe", function(req,res){
         res.send("-1")
     }
     else {
+        let ingredients = [];
         var user_id = req.query.userId;
         var name = req.query.name ? req.query.name : "No name available";
 	    var description = req.query.description ? req.query.description : "No description available";
         var image_path = req.query.image_path ? req.query.image_path : "https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg";
-        var ingredients = req.query.ingredients.split(',');
+        var ings = req.query.ingredients.split(',');
+
+        for(ing of ings){
+            const temp = ing.split(':')
+            ingredients.push({name:temp[0], amount: +temp[1]});
+        }
 
         var newRecipe = 
         { 
@@ -180,7 +186,7 @@ app.get("/api/addNewRecipe", function(req,res){
             else {
                 console.log("Recipe with id " + data._id + " has been added")
                 console.log(data);
-                res.send("0");
+                res.send(data._id);
             }
         });
     } 
@@ -202,10 +208,19 @@ app.get("/api/updateRecipe", function(req,res){
 
         // Updating the requested fields ONLY!
         var newValues = {};
+
+        let ingredients = [];
+        var ings = req.query.ingredients.split(',');
+
+        for(ing of ings){
+            const temp = ing.split(':')
+            ingredients.push({name:temp[0], amount: +temp[1]});
+        }
+
         if (req.query.name) newValues.name = req.query.name;
         if (req.query.description) newValues.description = req.query.description;
         if (req.query.image_path) newValues.image_path = req.query.image_path;
-        if (req.query.ingredients) newValues.ingredients = req.query.ingredients.split(',');
+        if (req.query.ingredients) newValues.ingredients = ingredients;
  
         modelRecipes.updateOne(searchQuery, newValues, function(err, updated_data) {
             if(err) {
