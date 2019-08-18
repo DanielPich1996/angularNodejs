@@ -13,7 +13,7 @@ import { FormGroup, FormControl, FormArray, Validators } from '@angular/forms';
 export class RecipeEditComponent implements OnInit {
 
   recipe:Recipe = new Recipe("","","","",[]);
-  id: number;
+  id: string;
   editMode = false;
   recipeForm: FormGroup;
 
@@ -24,16 +24,9 @@ export class RecipeEditComponent implements OnInit {
   ngOnInit() {
     this.route.params.subscribe((params: Params) => {
       this.editMode = params['id'] != null;
-      this.id = +params['id'];
+      this.id = params['id'];
       this.recipe = this.route.snapshot.data.recipe;
-      this.initForm(); 
-      // const tmpRecipe = this.recipeService.getRecipe(this.id);
-      // if (typeof tmpRecipe === 'undefined' && this.editMode) {
-      //   this.router.navigate(['/recipes'])
-      // } else {
-      //   this.recipe = tmpRecipe; 
-      //   this.initForm();
-      // }   
+      this.initForm();   
     });
   }
 
@@ -84,9 +77,12 @@ export class RecipeEditComponent implements OnInit {
     // )
 
     if (this.editMode){
-      this.recipeService.updateRecipe(this.id, this.recipeForm.value);
+      this.recipeService.updateRecipe(this.id, this.recipeForm.value).subscribe();
     } else {
-      this.recipeService.addRecipe(this.recipeForm.value);
+      console.log(this.recipeForm.value);
+      this.recipeService.addRecipe(this.recipeForm.value).subscribe(res => {
+        
+      });
     }
   }
 

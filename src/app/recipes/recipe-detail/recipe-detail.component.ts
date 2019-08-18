@@ -12,7 +12,7 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 export class RecipeDetailComponent implements OnInit {
 
   recipe:Recipe;
-  id: number;
+  id: String;
 
   constructor(private recipeService:RecipeService,
               private route: ActivatedRoute,
@@ -20,15 +20,12 @@ export class RecipeDetailComponent implements OnInit {
 
   ngOnInit() {
     this.recipe = this.route.snapshot.data.recipe;
-    // this.route.params.subscribe((params: Params) => {
-    //   this.id = +params['id'];
-    //   const tmpRecipe = this.recipeService.getRecipe(this.id);
-    //   if (typeof tmpRecipe === 'undefined') {
-    //     this.router.navigate(['/recipes'])
-    //   } else {
-    //     this.recipe = tmpRecipe;
-    //   }   
-    // });
+
+    this.route.params.subscribe(params => {
+      this.recipe = this.route.snapshot.data.recipe;
+      this.id = params['id'];
+      console.log(this.recipe);
+    });
   }
 
   onEditRecipe(){
@@ -40,7 +37,7 @@ export class RecipeDetailComponent implements OnInit {
   }
 
   onDeleteRecipe(){
-    this.recipeService.deleteRecipe(this.id);
+    this.recipeService.deleteRecipe(this.id).subscribe();
     this.router.navigate(['/recipes']);
   }
 }
