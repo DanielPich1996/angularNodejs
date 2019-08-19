@@ -38,6 +38,11 @@ var UserSchema = new Schema({
 name: { type: String },
 },{ versioinKey: false });
 
+var shoppingListSchema = new Schema({
+    user_id: { type: String },
+    ingredients: { type: Array }
+},{ versioinKey: false });
+
 var RecipeSchema = new Schema({
     name: { type: String },
     description: { type: String },
@@ -47,9 +52,11 @@ var RecipeSchema = new Schema({
 },{ versioinKey: false });
 
 
+
+
 var modelRecipes = mongo.model('recipes', RecipeSchema, 'recipes');
 var modelUsers = mongo.model('users', UserSchema, 'users');
-var modelShoppingList = mongo.model('shoppingList', UserSchema, 'shoppingList');
+var modelShoppingList = mongo.model('shoppingList', shoppingListSchema, 'shoppingList');
 
 
 // <------------------------------------Recipes------------------------------------------------------------------------------------->
@@ -400,11 +407,9 @@ app.get("/api/getAllShoppingLists", function(req,res){
 })
 
 app.get("/api/getShoppingListById", function(req,res){
-	var uid = "5d45426dbf5a4614d8a02031";
-	//findOne({userId: req.body.id},
-	//findOne({userId: uid},
-	//var id = req.params.id
-    modelShoppingList.findOne({userId: id}, function(err,data) {
+    var userId = req.query.userId;
+    
+    modelShoppingList.findOne({user_id: userId}, function(err,data) {
         if(err){
             res.send(err);
         }
@@ -414,6 +419,45 @@ app.get("/api/getShoppingListById", function(req,res){
     });
 })
 
+app.get("/api/updateShoppingList", function(req,res){
+
+    var userId = req.query.userId;
+    if(userId == null) {
+        console.log("No recipe id supplied to the updating request! recipe wasn't updated")
+        res.send("-1")
+    }
+    else {
+        // Update documents that match to the query
+        var searchQuery = { user_id: userId };
+        
+        let ingredients = [];
+        var ings = req.query.ingredients.split(',');
+
+        for(ing of ings){
+            const temp = ing.split(':')
+            ingredients.push({name:temp[0], amount: +temp[1]});
+        }
+
+        var newSP =
+        { 
+            "user_id"  : userId,
+            "ingredients": ingredients
+        }
+        console.log(newSP)
+
+        modelShoppingList.update(searchQuery, newSP, {upsert: true}, function(err, updated_data) {
+            if(err) {
+                console.log(err)
+                res.send("-1");
+            }
+            else {
+                console.log("Shopping list " + userId + " has been updated")
+                console.log(updated_data);
+                res.send("0");
+            }
+        });
+    } 
+})
 
 
 app.listen(8080, function () {

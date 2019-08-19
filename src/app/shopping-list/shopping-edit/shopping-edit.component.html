@@ -39,6 +39,11 @@
                   type="button"
                   (click)="onClear()"
                   [disabled]="!(f.value.name || f.value.amount)">Clear</button>
+          <button class="btn btn-success pull-right" 
+                  type="button"
+                  (click)="onSaveShoppingList()">
+              Save Shopping List
+          </button>
         </div>
       </div>
     </form>
