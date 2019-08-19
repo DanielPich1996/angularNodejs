@@ -333,8 +333,6 @@ app.get("/api/updateShoppingList", function(req,res){
     else {
         // Update documents that match to the query
         var searchQuery = { user_id: userId };
-
-        var newValues = {};
         
         let ingredients = [];
         var ings = req.query.ingredients.split(',');
