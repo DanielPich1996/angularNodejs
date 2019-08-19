@@ -2,6 +2,7 @@ import { Ingredient } from '../shared/ingridient.model';
 import { EventEmitter, Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import { Http } from '@angular/http';
+import { format } from 'util';
 
 @Injectable()
 export class ShoppingListService {
@@ -24,7 +25,19 @@ export class ShoppingListService {
     }
 
     addIngredient(ingredient:Ingredient){
-        this.ingridients.push(ingredient);
+        var index = -1
+        for(let i = 0; i < this.ingridients.length; i++){
+            if (this.ingridients[i].name.toLowerCase() === 
+                ingredient.name.toLowerCase()){
+                index = i;
+                this.ingridients[i].amount = 
+                    this.ingridients[i].amount + ingredient.amount
+            }
+        }
+
+        if (index == -1){
+            this.ingridients.push(ingredient);
+        }      
         this.ingredientChanged.emit(this.ingridients.slice());
     }
 
