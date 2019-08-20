@@ -8,6 +8,7 @@ import { RecipeEditComponent } from './recipes/recipe-edit/recipe-edit.component
 import { RecipeResolver } from './recipes/recipeResolver';
 import { AuthComponent } from './auth/auth.component';
 import { AuthGaurd } from './auth/auth.guard';
+import { AboutComponent } from './about/about.component';
 
 const appRoutes: Routes  = [
     { path: '', redirectTo: '/recipes', pathMatch: 'full'},
@@ -27,7 +28,8 @@ const appRoutes: Routes  = [
         canActivate:[AuthGaurd],
         component: ShoppingListComponent 
     },
-    { path: 'auth', component: AuthComponent}
+    { path: 'auth', component: AuthComponent},
+    { path: 'about', component: AboutComponent}
 ];
 
 @NgModule({
