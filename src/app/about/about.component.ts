@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { AboutService } from './about.service';
 
 @Component({
   selector: 'app-about',
@@ -7,12 +8,13 @@ import { Component, OnInit } from '@angular/core';
 })
 export class AboutComponent implements OnInit {
 
-  constructor() { }
+  constructor(private aboutService: AboutService) { }
+  
+  branches = [];
 
   ngOnInit() {
+    this.aboutService.getBranches().subscribe(res => {
+      this.branches = res.slice();
+    });
   }
-
-  title: string = 'My first AGM project';
-  lat: number = 51.678418;
-  lng: number = 888888.809007;
 }

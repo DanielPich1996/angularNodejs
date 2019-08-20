@@ -53,10 +53,16 @@ var RecipeSchema = new Schema({
     ingredients: { type: Array },
 },{ versioinKey: false });
 
-
+var BranchSchema = new Schema({
+    address: {type: String},
+    name: {type: String},
+    lng: {type: String},
+    lat: {type: String}
+},{ versioinKey: false });
 
 
 var modelRecipes = mongo.model('recipes', RecipeSchema, 'recipes');
+var modelBranch = mongo.model('branch', BranchSchema, 'branch');
 var modelUsers = mongo.model('users', UserSchema, 'users');
 var modelShoppingList = mongo.model('shoppingList', shoppingListSchema, 'shoppingList');
 
@@ -232,68 +238,68 @@ app.get("/api/updateRecipe", function(req,res){
 
 // <------------------------------------Users--------------------------------------------------------------------------------------->
 
-app.get("/api/getAllUsers", function(req,res){
-    modelUsers.find({}, function(err,data) {
-        if(err){
-            res.send(err);
-        }
-        else {
-            res.send(data);
-        }
-    });
-})
+// app.get("/api/getAllUsers", function(req,res){
+//     modelUsers.find({}, function(err,data) {
+//         if(err){
+//             res.send(err);
+//         }
+//         else {
+//             res.send(data);
+//         }
+//     });
+// })
 
 // In line 89-140 we have defined our API calls, which allow us to store, update, find and delete the user data from the database.
-app.post("/api/saveUser", function(req,res){
-    var mod = new model(req.body);
-    if(req.body.mode == "Save")
-    {
-        mod.save(function(err, data) {
-            if(err) {
-                res.send(err);
-            }
-            else {
-                res.send({data: "Record has been Inserted..!!"});
-            }
-        });
-    }
-    else 
-    {
-        model.findByIdAndUpdate(req.body.id, {name: req.body.name, address: req.body.address},
-            function(err,data) {
-                if(err){
-                    res.send(err);
-                }
-                else {
-                    res.send({data: "Record has been Updated..!!"});
-                }
-        });
-    }
-})
+// app.post("/api/saveUser", function(req,res){
+//     var mod = new model(req.body);
+//     if(req.body.mode == "Save")
+//     {
+//         mod.save(function(err, data) {
+//             if(err) {
+//                 res.send(err);
+//             }
+//             else {
+//                 res.send({data: "Record has been Inserted..!!"});
+//             }
+//         });
+//     }
+//     else 
+//     {
+//         model.findByIdAndUpdate(req.body.id, {name: req.body.name, address: req.body.address},
+//             function(err,data) {
+//                 if(err){
+//                     res.send(err);
+//                 }
+//                 else {
+//                     res.send({data: "Record has been Updated..!!"});
+//                 }
+//         });
+//     }
+// })
 
-app.post("/api/deleteUser", function(req,res){
-    console.log("start")
-    model.remove({ _id: req.body.id }, function(err) {
-        if(err){
-            console.log("nope")
-            res.send(err);
-        }
-        else {
-            res.send({data: "Record has been Deleted..!!"});
-        }
-    });
-})
+// app.post("/api/deleteUser", function(req,res){
+//     console.log("start")
+//     model.remove({ _id: req.body.id }, function(err) {
+//         if(err){
+//             console.log("nope")
+//             res.send(err);
+//         }
+//         else {
+//             res.send({data: "Record has been Deleted..!!"});
+//         }
+//     });
+// })
 
-app.post("/api/getUser", function(req,res){
-    model.find({}, function(err,data) {
-        if(err){
-            res.send(err);
-        }
-        else {
-            res.send(data);
-        }
-    });
-})
+// app.post("/api/getUser", function(req,res){
+//     model.find({}, function(err,data) {
+//         if(err){
+//             res.send(err);
+//         }
+//         else {
+//             res.send(data);
+//         }
+//     });
+// })
 
 //<-------------------------------   Authenticate  --------------------------------------------------------------------------------->
 
@@ -351,16 +357,16 @@ app.get("/api/signup", function(req, res){
 
 // <------------------------------Shopping Lists------------------------------------------------------------------------------------>
 
-app.get("/api/getAllShoppingLists", function(req,res){
-    modelShoppingList.find({}, function(err,data) {
-        if(err){
-            res.send(err);
-        }
-        else {
-            res.send(data);
-        }
-    });
-})
+// app.get("/api/getAllShoppingLists", function(req,res){
+//     modelShoppingList.find({}, function(err,data) {
+//         if(err){
+//             res.send(err);
+//         }
+//         else {
+//             res.send(data);
+//         }
+//     });
+// })
 
 app.get("/api/getShoppingListById", function(req,res){
     var userId = req.query.userId;
@@ -413,6 +419,17 @@ app.get("/api/updateShoppingList", function(req,res){
             }
         });
     } 
+})
+
+app.get('/api/getBranches', function(req, res){
+    modelBranch.find(function(err, data){
+        console.log(data);
+        if(err){
+            res.send(err);
+        } else { 
+            res.send(data);
+        }
+    })
 })
 
 
