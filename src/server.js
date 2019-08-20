@@ -36,6 +36,8 @@ var Schema = mongo.Schema;
 
 var UserSchema = new Schema({
 name: { type: String },
+password: {type: String},
+email: {type: String}
 },{ versioinKey: false });
 
 var shoppingListSchema = new Schema({
@@ -265,9 +267,7 @@ app.post("/api/saveUser", function(req,res){
                 else {
                     res.send({data: "Record has been Updated..!!"});
                 }
-            });
-
-
+        });
     }
 })
 
@@ -295,6 +295,58 @@ app.post("/api/getUser", function(req,res){
     });
 })
 
+//<-------------------------------   Authenticate  --------------------------------------------------------------------------------->
+
+app.get("/api/login", function(req, res){
+    var query = {email: req.query.email, password: req.query.password}
+
+    modelUsers.findOne(query, function(err, data){
+        if(err ){
+            res.send(err);
+        }else if(data){
+            res.send(data._id);
+        } else{
+            res.send("0");
+        }
+    });
+});
+
+app.get("/api/signup", function(req, res){
+    var emailQ = {email: req.query.email} 
+                   //"password": req.query.password}
+    var user = {"email": req.query.email,
+                "password": req.query.password}
+    modelUsers.findOne(emailQ, function(err, data){
+        if(err){
+            res.send("0");
+        }else{
+            if(data){
+                res.send("0");
+            }else{
+                modelUsers.create(user, function(err, data){
+                    if(err){
+                        res.send("0");
+                    }else{
+                        res.send(data._id)
+                    }
+                });
+            }
+
+        }
+    });
+    // modelUsers.findOneAndUpdate(emailQ, 
+    //                             { $setOnInsert: { password: req.query.password } }, 
+    //                             { upsert: true },
+    //                             function(err, data){
+    //     if(err){
+    //         res.send("0");
+    //     }else if(data){
+    //         res.send(data._id);
+    //     } else{
+    //         res.send("1");
+    //     }
+    // });
+});
 
 
 // <------------------------------Shopping Lists------------------------------------------------------------------------------------>

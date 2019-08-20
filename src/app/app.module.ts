@@ -23,6 +23,9 @@ import { RecipeEditComponent } from './recipes/recipe-edit/recipe-edit.component
 import { RecipeService } from './recipes/recipe.service';
 import { RecipeResolver } from './recipes/recipeResolver';
 import { AuthComponent } from './auth/auth.component';
+import { AuthService } from './auth/auth.service';
+import { AuthGaurd } from './auth/auth.guard';
+import { AboutComponent } from './about/about.component';
 
 @NgModule({
   declarations: [
@@ -37,7 +40,8 @@ import { AuthComponent } from './auth/auth.component';
     RecipeItemComponent,
     RecipeDetailComponent,
     RecipeEditComponent,
-    AuthComponent
+    AuthComponent,
+    AboutComponent
   ],
   imports: [
     BrowserModule,
@@ -46,7 +50,7 @@ import { AuthComponent } from './auth/auth.component';
     HttpModule,
     ReactiveFormsModule
   ],
-  providers: [ShoppingListService, RecipeService, RecipeResolver,
+  providers: [ShoppingListService, RecipeService, RecipeResolver, AuthService, AuthGaurd,
     {provide: BrowserXhr, useClass:CustExtBrowserXhr},],
   bootstrap: [AppComponent]
 })

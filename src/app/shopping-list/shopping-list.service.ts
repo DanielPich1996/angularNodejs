@@ -3,18 +3,17 @@ import { EventEmitter, Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import { Http } from '@angular/http';
 import { format } from 'util';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class ShoppingListService {
     ingredientChanged = new EventEmitter<Ingredient[]>();
     startedEditing = new Subject<number>();
 
-    constructor( private http:Http ){}
+    constructor( private http:Http , 
+                 private authService: AuthService){}
 
-    private ingridients:Ingredient[] = [
-        new Ingredient('Apples', 5),
-        new Ingredient('Tomats', 10)
-    ];
+    private ingridients:Ingredient[] = [];
 
     getIngredients(){
         return this.ingridients.slice();
@@ -56,8 +55,9 @@ export class ShoppingListService {
         this.ingredientChanged.next(this.ingridients.slice());
     }
 
-    updateShoppingList(userId: string){
+    updateShoppingList(){
         let shoppingList = '';
+        const userId = this.authService.getUserId();
 
         for (let ing of this.ingridients){
             shoppingList += ing.name + ":" + ing.amount + ",";
@@ -72,7 +72,8 @@ export class ShoppingListService {
     }
 
     getShoppingList(){
-        return this.http.get("http://localhost:8080/api/getShoppingListById?userId=" + "5d31fe7f13c11734dc3afbb1" ).map(
+        const userId = this.authService.getUserId();
+        return this.http.get("http://localhost:8080/api/getShoppingListById?userId=" + userId ).map(
             data => {
                 var json = data.json();
                 this.ingridients = json.ingredients.slice();

@@ -57,7 +57,7 @@ export class ShoppingEditComponent implements OnInit, OnDestroy {
   }
 
   onSaveShoppingList(){
-    this.slService.updateShoppingList("5d31fe7f13c11734dc3afbb1").subscribe(data => {
+    this.slService.updateShoppingList().subscribe(data => {
 
     });
   }

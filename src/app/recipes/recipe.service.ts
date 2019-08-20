@@ -7,6 +7,7 @@ import { Observable } from 'rxjs';
 import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/do';
+import { AuthService } from '../auth/auth.service';
 
 
 @Injectable()
@@ -16,11 +17,13 @@ export class RecipeService {
     private recipes:Recipe[];
     recipeSelected = new EventEmitter<Recipe>();
 
-    constructor(private http:Http, private slService:ShoppingListService) {}
+    constructor(private http:Http, 
+                private slService:ShoppingListService,
+                private authService: AuthService) {}
 
     getAllRecipes(): Observable<Recipe[]> {
-        
-        return this.http.get('http://localhost:8080/api/getAllRecipes/')
+        var userId = this.authService.getUserId();
+        return this.http.get('http://localhost:8080/api/getAllUserRecipes?userId=' + userId )
             .map((response: Response) => {
 
                 var res = response.json()
@@ -55,13 +58,14 @@ export class RecipeService {
 
     addRecipe(recipe: Recipe){
         let ingredients = '';
-
+        var userId = this.authService.getUserId();
         for (let ing of recipe.ingredients){
             ingredients += ing.name + ":" + ing.amount + ",";
         }
         ingredients = ingredients.slice(0, -1);
 
-        return this.http.get("http://localhost:8080/api/addNewRecipe?userId=5d31fe7f13c11734dc3afbb1"+
+        return this.http.get("http://localhost:8080/api/addNewRecipe?"+
+                      "userId="+ userId +
                       "&&name=" + recipe.name + 
                       "&&description=" + recipe.description + 
                       "&&image_path=" + recipe.imagePath + 
