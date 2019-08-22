@@ -77,6 +77,7 @@ export class ShoppingListService {
             data => {
                 var json = data.json();
                 this.ingridients = json.ingredients.slice();
+                this.ingredientChanged.next(this.ingridients.slice());
             }
         ); 
     }

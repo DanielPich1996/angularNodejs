@@ -27,6 +27,7 @@ import { AuthService } from './auth/auth.service';
 import { AuthGaurd } from './auth/auth.guard';
 import { AboutComponent } from './about/about.component';
 import { AgmCoreModule } from '@agm/core';
+import { GraphDirective } from './shared/graph.directive';
 
 @NgModule({
   declarations: [
@@ -42,7 +43,8 @@ import { AgmCoreModule } from '@agm/core';
     RecipeDetailComponent,
     RecipeEditComponent,
     AuthComponent,
-    AboutComponent
+    AboutComponent,
+    GraphDirective
   ],
   imports: [
     BrowserModule,
