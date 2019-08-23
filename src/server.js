@@ -67,13 +67,16 @@ var modelUsers = mongo.model('users', UserSchema, 'users');
 var modelShoppingList = mongo.model('shoppingList', shoppingListSchema, 'shoppingList');
 
 
+
+
+
 // <------------------------------------Recipes------------------------------------------------------------------------------------->
 
 // Get all recipes and full user data of the creator of the recipe
 app.get("/api/getAllRecipes", function(req,res) {
-    getAllRecipes(function(data) {        
-        res.send(data);
-    });	
+     getAllRecipes(function(data) {        
+         res.send(data);
+     });	
 })
 
 // Get user's recipes by user id
@@ -250,6 +253,42 @@ app.get("/api/updateRecipe", function(req,res){
         });
     } 
 })
+
+app.get("/api/getUserTotalIngredientsAmount", function(req,res) {
+    
+    var user_id = req.query.userId
+
+    if(user_id == undefined)
+    {
+        console.log("Operation must recieve a user id!");
+        res.send(-1);
+    }
+    else
+    {
+        modelRecipes.aggregate([
+
+            // applying group for docs that contains this user id
+            {$match:{"_user_id": user_id}},
+
+            // Count the ingredients of each recipe
+             {$project:{count: {$size:"$ingredients"}}},
+    
+            // sum all recipe's ingredients
+             {$group:{_id: user_id, total: {$sum: "$count"}}}
+    
+        ]).exec(function(err, data){
+            if(err){
+                console.log(err)
+                res.send("-1");
+            }
+            else {
+                console.log(data)
+                res.send(data);
+            }
+        });
+    }
+})
+
 
 // Getting all existing recipes
 function getAllRecipes(callback, printToConsole = true) {
