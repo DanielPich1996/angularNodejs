@@ -2,7 +2,7 @@
 <h1>Our branches</h1>
 <div *ngFor="let branch of branches">
   <h4> {{branch.name}} </h4>
-  <p>{{ 'Addres' + branch.adress}}</p>
+  <p>{{ 'Addres: ' + branch.adress}}</p>
   <agm-map [latitude]="branch.lat" [longitude]="branch.lng">
       <agm-marker [latitude]="branch.lat" [longitude]="branch.lng"></agm-marker>
     </agm-map>
