@@ -28,6 +28,7 @@ import { AuthGaurd } from './auth/auth.guard';
 import { AboutComponent } from './about/about.component';
 import { AgmCoreModule } from '@agm/core';
 import { GraphDirective } from './shared/graph.directive';
+import { RecipeFilterPipe } from './recipes/recipe-list/pipes/recipe-filter.pipe';
 
 @NgModule({
   declarations: [
@@ -44,7 +45,8 @@ import { GraphDirective } from './shared/graph.directive';
     RecipeEditComponent,
     AuthComponent,
     AboutComponent,
-    GraphDirective
+    GraphDirective,
+    RecipeFilterPipe
   ],
   imports: [
     BrowserModule,

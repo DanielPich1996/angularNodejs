@@ -5,9 +5,70 @@
 </div>
 <hr>
 <div class="row">
+    <div class="col-xs-12" *ngIf="!searchIsAnabaled">
+        <button (click)="showSearch()" type="button"
+          class="btn btn-primary">Filter
+        </button>
+    </div> 
+
+    <div class="col-xs-12" *ngIf="searchIsAnabaled">
+        <form>
+          <div class="row">
+            <div class="col-xs-12">
+              <div class="form-group">
+                <label for="name"> Name </label>
+                <input type="text"
+                       id="name" 
+                       class="form-control"
+                       name="filterName"
+                       [(ngModel)]="filterName">
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-xs-6">
+              <div class="form-group">
+                <label for="minIng"> Min ingedients </label>
+                <input type="number"
+                       id="minIng"
+                       class="form-control"
+                       name="filterMin"
+                       [(ngModel)]="filterMin">
+
+              </div>
+            </div>
+
+            <div class="col-xs-6">
+              <div class="form-group">
+                <label for="maxIng"> Max ingedients </label>
+                <input type="number"
+                       id="maxIng" 
+                       class="form-control"
+                       name="filterMax"
+                       [(ngModel)]="filterMax">
+              </div>
+            </div>
+          </div>
+            <div class="row">
+              <div class="col-xs-6 ">
+                <button type="button"
+
+                        (click)="showSearch()"
+                        class="btn btn-danger pull-right">Cancle filter
+                </button>
+              </div>
+            </div>
+        
+        </form>
+    </div>
+    
+</div>
+<hr>
+<div class="row">
   <div class="col-xs-12">
     <app-recipe-item 
-      *ngFor="let recipeEl of recipes; let i = index"
+      *ngFor="let recipeEl of recipes | recipeFilter:filterName:filterMin:filterMax; let i = index"
       [recipe]="recipeEl"
       [index]="i">
     </app-recipe-item>
