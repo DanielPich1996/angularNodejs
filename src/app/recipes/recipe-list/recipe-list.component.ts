@@ -10,9 +10,14 @@ import { Subscription } from 'rxjs/Subscription';
   styleUrls: ['./recipe-list.component.css']
 })
 export class RecipeListComponent implements OnInit, OnDestroy {
-
+ 
+  filterMin=0;
+  filterMax=999;
+  filterName = '';
+  searchIsAnabaled = false;
   subscription: Subscription
-  recipes:Recipe[];
+  recipes:Recipe[] = [];
+
   constructor(private recipeService: RecipeService, 
               private router: Router,
               private route: ActivatedRoute) { }
@@ -27,11 +32,20 @@ export class RecipeListComponent implements OnInit, OnDestroy {
       this.recipes = newRecipes
     });
   }
+
+
   ngOnDestroy(){
     this.subscription.unsubscribe(); 
   }
 
   onAddNewRecipe(){
     this.router.navigate(['new'], {relativeTo: this.route});
+  }
+
+  showSearch(){
+    this.searchIsAnabaled = !this.searchIsAnabaled;
+    this.filterMin=0;
+    this.filterMax=999;
+    this.filterName = '';
   }
 }

@@ -2,10 +2,70 @@
   <div class="col-xs-10">
     <app-shopping-edit></app-shopping-edit>
     <hr>
+    <div class="row">
+        <div class="col-xs-12" *ngIf="!searchIsAnabaled">
+            <button (click)="showSearch()" type="button"
+              class="btn btn-primary">Filter
+            </button>
+        </div> 
+    
+        <div class="col-xs-12" *ngIf="searchIsAnabaled">
+            <form>
+              <div class="row">
+                <div class="col-xs-12">
+                  <div class="form-group">
+                    <label for="name"> Name </label>
+                    <input type="text"
+                           id="name" 
+                           class="form-control"
+                           name="filterName"
+                           [(ngModel)]="filterName">
+                  </div>
+                </div>
+              </div>
+    
+              <div class="row">
+                <div class="col-xs-6">
+                  <div class="form-group">
+                    <label for="minIng"> Min ingedients </label>
+                    <input type="number"
+                           id="minIng"
+                           class="form-control"
+                           name="filterMin"
+                           [(ngModel)]="filterMin">
+    
+                  </div>
+                </div>
+    
+                <div class="col-xs-6">
+                  <div class="form-group">
+                    <label for="maxIng"> Max ingedients </label>
+                    <input type="number"
+                           id="maxIng" 
+                           class="form-control"
+                           name="filterMax"
+                           [(ngModel)]="filterMax">
+                  </div>
+                </div>
+              </div>
+                <div class="row">
+                  <div class="col-xs-6 ">
+                    <button type="button"   
+                            (click)="showSearch()"
+                            class="btn btn-danger">Cancle filter
+                    </button>
+                  </div>
+                </div>
+            
+            </form>
+        </div>
+        
+    </div>
+    <hr>
     <ul class="list-group">
       <a class="list-group-item" 
          style="cursor: pointer;"
-         *ngFor="let ingredient of ingridients; let i = index"
+         *ngFor="let ingredient of ingridients | ingedientsFilter:filterName:filterMin:filterMax ; let i = index"
          (click)="onEditItem(i)">
          {{ingredient.name}} ({{ingredient.amount}})
       </a>

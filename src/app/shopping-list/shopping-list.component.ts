@@ -9,8 +9,12 @@ import { Subscription } from 'rxjs/Subscription';
   styleUrls: ['./shopping-list.component.css']
 })
 export class ShoppingListComponent implements OnInit, OnDestroy {
-  ingridients:Ingredient[];
+  ingridients:Ingredient[] = [];
   subscription : Subscription;
+  filterMin=0;
+  filterMax=999;
+  filterName = '';
+  searchIsAnabaled = false;
 
   constructor(private slService:ShoppingListService) { }
 
@@ -32,5 +36,12 @@ export class ShoppingListComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(){
     this.subscription.unsubscribe();
+  }
+
+  showSearch(){
+    this.searchIsAnabaled = !this.searchIsAnabaled;
+    this.filterMin=0;
+    this.filterMax=999;
+    this.filterName = '';
   }
 }
