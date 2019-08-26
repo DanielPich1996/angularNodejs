@@ -371,71 +371,6 @@ function isRecipeMatch(recipe, string, isCaseSensitive = true) {
 }
 
 
-// <------------------------------------Users--------------------------------------------------------------------------------------->
-
-// app.get("/api/getAllUsers", function(req,res){
-//     modelUsers.find({}, function(err,data) {
-//         if(err){
-//             res.send(err);
-//         }
-//         else {
-//             res.send(data);
-//         }
-//     });
-// })
-
-// In line 89-140 we have defined our API calls, which allow us to store, update, find and delete the user data from the database.
-// app.post("/api/saveUser", function(req,res){
-//     var mod = new model(req.body);
-//     if(req.body.mode == "Save")
-//     {
-//         mod.save(function(err, data) {
-//             if(err) {
-//                 res.send(err);
-//             }
-//             else {
-//                 res.send({data: "Record has been Inserted..!!"});
-//             }
-//         });
-//     }
-//     else 
-//     {
-//         model.findByIdAndUpdate(req.body.id, {name: req.body.name, address: req.body.address},
-//             function(err,data) {
-//                 if(err){
-//                     res.send(err);
-//                 }
-//                 else {
-//                     res.send({data: "Record has been Updated..!!"});
-//                 }
-//         });
-//     }
-// })
-
-// app.post("/api/deleteUser", function(req,res){
-//     console.log("start")
-//     model.remove({ _id: req.body.id }, function(err) {
-//         if(err){
-//             console.log("nope")
-//             res.send(err);
-//         }
-//         else {
-//             res.send({data: "Record has been Deleted..!!"});
-//         }
-//     });
-// })
-
-// app.post("/api/getUser", function(req,res){
-//     model.find({}, function(err,data) {
-//         if(err){
-//             res.send(err);
-//         }
-//         else {
-//             res.send(data);
-//         }
-//     });
-// })
-
 //<-------------------------------   Authenticate  --------------------------------------------------------------------------------->
 
 app.get("/api/login", function(req, res){
@@ -475,33 +410,10 @@ app.get("/api/signup", function(req, res){
 
         }
     });
-    // modelUsers.findOneAndUpdate(emailQ, 
-    //                             { $setOnInsert: { password: req.query.password } }, 
-    //                             { upsert: true },
-    //                             function(err, data){
-    //     if(err){
-    //         res.send("0");
-    //     }else if(data){
-    //         res.send(data._id);
-    //     } else{
-    //         res.send("1");
-    //     }
-    // });
 });
 
 
 // <------------------------------Shopping Lists------------------------------------------------------------------------------------>
-
-// app.get("/api/getAllShoppingLists", function(req,res){
-//     modelShoppingList.find({}, function(err,data) {
-//         if(err){
-//             res.send(err);
-//         }
-//         else {
-//             res.send(data);
-//         }
-//     });
-// })
 
 app.get("/api/getShoppingListById", function(req,res){
     var userId = req.query.userId;
