@@ -451,8 +451,10 @@ wss.on('connection', ws => {
     })
 
     ws.on('close', message => {
-        console.log(wss.clients.size);
-        ws.send(wss.clients.size);
+        wss.clients.forEach( client => {
+            console.log(wss.clients.size);
+            client.send(wss.clients.size);
+        })
     })
 
     wss.clients.forEach( client => {
