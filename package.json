@@ -34,6 +34,7 @@
     "rxjs-compat": "^6.5.2",
     "rxjs-observable": "0.0.7",
     "tslib": "^1.9.0",
+    "ws": "^7.1.2",
     "zone.js": "~0.8.26"
   },
   "devDependencies": {
@@ -46,6 +47,7 @@
     "@types/jasmine": "~2.8.8",
     "@types/jasminewd2": "~2.0.3",
     "@types/node": "~8.9.4",
+    "@types/ws": "^6.0.3",
     "codelyzer": "~4.5.0",
     "jasmine-core": "~2.99.1",
     "jasmine-spec-reporter": "~4.2.1",

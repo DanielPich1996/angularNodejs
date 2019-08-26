@@ -437,3 +437,26 @@ app.listen(8080, function () {
     console.log('NodeJS server listening on port 8080...')
 })
 
+
+
+const WebSocket = require('ws')
+
+const wss = new WebSocket.Server({ port: 8085 })
+
+wss.on('connection', ws => {
+
+    ws.on('message', message => {
+        console.log(wss.clients.size);
+        ws.send(wss.clients.size);
+    })
+
+    ws.on('close', message => {
+        console.log(wss.clients.size);
+        ws.send(wss.clients.size);
+    })
+
+    wss.clients.forEach( client => {
+        console.log(wss.clients.size);
+        client.send(wss.clients.size);
+    })
+})

@@ -12,9 +12,13 @@
       </ul>
 
       <ul class="nav navbar-nav navbar-right">
-        <li class="dropdown" appDropdown>
-          <a class="dropdown-toggle" 
-             role="button"
+        <li> 
+          <a>
+            conected users: {{ usersCount }}
+          </a>
+        </li>
+        <li>
+          <a role="button"
              style="cursor: pointer;"
              (click)="onLogOut()">
              LogOut
