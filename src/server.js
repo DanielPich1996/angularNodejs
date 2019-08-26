@@ -1,7 +1,14 @@
+//dependencies
 const bodyParser = require('body-parser');
 const cors = require('cors')
 const express = require('express')
 const app = express();
+var router = express.Router();
+var path = require("path");
+
+var request = require("request");
+var cheerio = require("cheerio");
+
 ObjectId = require('mongodb').ObjectID;
 
 var mongo = require("mongoose");
@@ -10,6 +17,17 @@ var db = mongo.connect("mongodb://localhost:27017/angular_course", function(err,
     if(err){ console.log(err); } //in case of an error and the DB being unable to connect we throw the error to the user.
     else{ console.log('Connected to ' + db, ' + ', response); }
 });
+
+app.use(express.static(process.cwd() + "/public"));
+//Require set up handlebars
+var exphbs = require("express-handlebars");
+app.engine(
+  "handlebars",
+  exphbs({
+    defaultLayout: "main"
+  })
+);
+app.set("view engine", "handlebars");
 
 
 app.use(cors());
@@ -29,9 +47,6 @@ app.use(function (req, res, next) {
     next();
 });
 
-
-
-// Line 26–31 helps us define our database schema. In our example we are only going to store the name and address of the user which are both Strings.
 var Schema = mongo.Schema;
 
 var UserSchema = new Schema({
@@ -49,7 +64,12 @@ var RecipeSchema = new Schema({
     name: { type: String },
     description: { type: String },
     image_path: { type: String },
-    _user_id: { type: String },
+    _user_id: [
+        {
+          type: Schema.Types.ObjectId,
+          ref: "users"
+        }
+      ],
     ingredients: { type: Array },
 },{ versioinKey: false });
 
@@ -61,13 +81,76 @@ var BranchSchema = new Schema({
 },{ versioinKey: false });
 
 
-var modelRecipes = mongo.model('recipes', RecipeSchema, 'recipes');
+//var modelRecipes = mongo.model('recipes', RecipeSchema, 'recipes');
+var Recipe = require("../src/models/Recipe");
 var modelBranch = mongo.model('branch', BranchSchema, 'branch');
 var modelUsers = mongo.model('users', UserSchema, 'users');
 var modelShoppingList = mongo.model('shoppingList', shoppingListSchema, 'shoppingList');
 
 
 
+
+// <------------------------------------Scraper------------------------------------------------------------------------------------->
+function LoadScraper() {
+
+    request("https://www.allrecipes.com/", function(error, response, html) {
+      var $ = cheerio.load(html);
+      var titlesArray = [];
+  
+      $(".fixed-recipe-card").each(function(i, element) {
+        var result = {}; 
+        result._user_id = ""
+
+        result.name = $(this)        
+          .children(".fixed-recipe-card__info")
+          .children(".fixed-recipe-card__h3")
+          .children("a")
+          .children("span")
+          .text();
+        result.description = $(this)
+          .children(".fixed-recipe-card__info")
+          .children("a")
+          .children(".fixed-recipe-card__description")
+          .contents()
+          .text()
+        result.image_path = $(this)        
+          .children(".favorite")
+          .attr("data-imageurl")
+          .replace(/'/g, "") // replace all ' with empty char (g = replace all match chars)
+
+          // Default values if one of them not found
+        if(!result.image_path)
+             result.image_path = "https://vignette.wikia.nocookie.net/joke-battles/images/0/0f/Everyday-is-taco-tuesday-t-shirt-teeturtle-marvel_800x.jpg"
+
+        if(!result.description)
+            result.description = ""
+
+        // Saving to mongo if not already exists (by recipe name)
+        if (result.name != "" && titlesArray.indexOf(result.name) == -1) {
+            titlesArray.push(result.name);  
+
+            Recipe.countDocuments({ name: result.name }, function(err, test) {
+                if (test === 0) {
+                  var entry = new Recipe(result);
+    
+                  entry.save(function(err, doc) {
+                    if (err) {
+                      console.log(err);
+                    } else {
+                        console.log("--------------------------------------------------");
+                        console.log("Name: " + doc.name)
+                    }
+                  });
+                }
+              });
+          } else {
+            console.log("Recipe already exists.");
+          }
+      });
+    });
+
+    console.log("Finishing scraper.")
+}
 
 
 // <------------------------------------Recipes------------------------------------------------------------------------------------->
@@ -90,7 +173,7 @@ app.get("/api/getAllUserRecipes", function(req,res) {
 app.get("/api/getRecipe", function(req,res){
 	
 	var id = req.query.id;
-	modelRecipes.findOne({_id: id}, function(err,data) {
+	Recipe.findOne({_id: id}, function(err,data) {
         if(err || data == null){
 			console.log("A recipe with id " + id + " wasn't found");
 			
@@ -110,7 +193,7 @@ app.get("/api/getRecipe", function(req,res){
 app.get("/api/getRecipeByName", function(req,res){
 	
 	var recipeName = req.query.name;
-	modelRecipes.findOne({name: recipeName}, function(err,data) {
+	Recipe.findOne({name: recipeName}, function(err,data) {
         if(err || data == null){
 			console.log("A recipe with the name " + recipeName + " wasn't found");
 			
@@ -153,7 +236,7 @@ app.get("/api/searchRecipe", function(req,res){
 app.get("/api/deleteRecipe", function(req,res){
 
 	var id = req.query.id;
-    modelRecipes.deleteOne({_id: id}, function(err) {
+    Recipe.deleteOne({_id: id}, function(err) {
         if(err){
             console.log(err)
             res.send("-1");
@@ -196,7 +279,7 @@ app.get("/api/addNewRecipe", function(req,res){
             "ingredients": ingredients
         };
      
-        modelRecipes.create(newRecipe, function(err, data) {
+        Recipe.create(newRecipe, function(err, data) {
             if(err) {
                 console.log(err)
                 res.send("-1");
@@ -240,7 +323,7 @@ app.get("/api/updateRecipe", function(req,res){
         if (req.query.image_path) newValues.image_path = req.query.image_path;
         if (req.query.ingredients) newValues.ingredients = ingredients;
  
-        modelRecipes.updateOne(searchQuery, newValues, function(err, updated_data) {
+        Recipe.updateOne(searchQuery, newValues, function(err, updated_data) {
             if(err) {
                 console.log(err)
                 res.send("-1");
@@ -265,7 +348,7 @@ app.get("/api/getUserTotalIngredientsAmount", function(req,res) {
     }
     else
     {
-        modelRecipes.aggregate([
+        Recipe.aggregate([
 
             // applying group for docs that contains this user id
             {$match:{"_user_id": user_id}},
@@ -289,12 +372,13 @@ app.get("/api/getUserTotalIngredientsAmount", function(req,res) {
     }
 })
 
+    
 
 // Getting all existing recipes
 function getAllRecipes(callback, printToConsole = true) {
 
     console.log("Getting all recipes")
-    modelRecipes.aggregate([
+    Recipe.aggregate([
 		{ $lookup:
 			{
 				from: 'users',
@@ -318,7 +402,7 @@ function getAllRecipes(callback, printToConsole = true) {
 function getAllUserRecipes(userId, callback, printToConsole = true) {
 
     console.log("Getting all recipes by user id " + userId)
-	modelRecipes.find({_user_id: userId}, function(err,data) {
+	Recipe.find({_user_id: userId}, function(err,data) {
         if(err){
 			console.log(err);
             callback("-1");
@@ -567,9 +651,9 @@ app.get('/api/getBranches', function(req, res){
     })
 })
 
-
 app.listen(8080, function () {
     console.log('NodeJS server listening on port 8080...')
+    LoadScraper()
 })
 
 
