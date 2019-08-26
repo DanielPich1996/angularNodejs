@@ -30,6 +30,7 @@ import { AgmCoreModule } from '@agm/core';
 import { GraphDirective } from './shared/graph.directive';
 import { RecipeFilterPipe } from './recipes/recipe-list/pipes/recipe-filter.pipe';
 import { IngedientsFilterPipe } from './shopping-list/pipes/ingedients-filter.pipe';
+import { ConectedUsersPipe } from './header/conected-users.pipe';
 
 @NgModule({
   declarations: [
@@ -48,7 +49,8 @@ import { IngedientsFilterPipe } from './shopping-list/pipes/ingedients-filter.pi
     AboutComponent,
     GraphDirective,
     RecipeFilterPipe,
-    IngedientsFilterPipe
+    IngedientsFilterPipe,
+    ConectedUsersPipe
   ],
   imports: [
     BrowserModule,
