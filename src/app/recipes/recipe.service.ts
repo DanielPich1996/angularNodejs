@@ -23,7 +23,7 @@ export class RecipeService {
 
     getAllRecipes(): Observable<Recipe[]> {
         var userId = this.authService.getUserId();
-        return this.http.get('http://localhost:8080/api/getAllRecipes' )
+        return this.http.get('http://localhost:8080/api/getAllUserRecipes?userId=' + userId )
             .map((response: Response) => {
 
                 var res = response.json()

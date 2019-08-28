@@ -5,7 +5,7 @@ var RecipeSchema = new Schema({
     name: { type: String },
     description: { type: String },
     image_path: { type: String },
-    _user_id: { type: String },
+    _user_id: {  type: Schema.Types.ObjectId },
     ingredients: { type: Array },
 });
 
