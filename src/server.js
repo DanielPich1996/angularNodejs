@@ -6,6 +6,7 @@ const app = express();
 var request = require("request");
 var cheerio = require("cheerio");
 var ahoCorasick = require('ahocorasick');
+const WebSocket = require('ws')
 
 ObjectId = require('mongodb').ObjectID;
 
@@ -73,7 +74,6 @@ var modelShoppingList = mongo.model('shoppingList', shoppingListSchema, 'shoppin
 
 
 
-
 // <------------------------------------Scraper------------------------------------------------------------------------------------->
 
 app.get("/api/freeSearchRecipes", function(req,res) {
@@ -114,17 +114,23 @@ app.get("/api/freeSearchRecipes", function(req,res) {
 
 // Load several recipes from several pages from 'allrecipes.com' site
 function LoadScraper() {
-    LoadAllRecipesWebScraper("https://www.allrecipes.com/")
-    LoadAllRecipesWebScraper("https://www.allrecipes.com/recipes/276/desserts/cakes/")
-    LoadAllRecipesWebScraper("https://www.allrecipes.com/recipes/78/breakfast-and-brunch/")
-    LoadAllRecipesWebScraper("https://www.allrecipes.com/recipes/201/meat-and-poultry/chicken/")
-    LoadAllRecipesWebScraper("https://www.allrecipes.com/recipes/88/bbq-grilling/")
-    LoadAllRecipesWebScraper("https://www.allrecipes.com/recipes/86/world-cuisine/")
+    try {
+        LoadAllRecipesWebScraper("https://www.allrecipes.com/")
+        LoadAllRecipesWebScraper("https://www.allrecipes.com/recipes/276/desserts/cakes/")
+        LoadAllRecipesWebScraper("https://www.allrecipes.com/recipes/78/breakfast-and-brunch/")
+        LoadAllRecipesWebScraper("https://www.allrecipes.com/recipes/201/meat-and-poultry/chicken/")
+        LoadAllRecipesWebScraper("https://www.allrecipes.com/recipes/88/bbq-grilling/")
+        LoadAllRecipesWebScraper("https://www.allrecipes.com/recipes/86/world-cuisine/")
+    } catch (error) {
+        console.log("Can't access \'allrecipes.com\'")
+    }   
 }
 
 // The actual scraping function
 // Taking recipes data from outsource web pages
 function LoadAllRecipesWebScraper(allrecipes_url) {
+    console.log("Start scraper for " + allrecipes_url)
+
     request(allrecipes_url, function(error, response, html) {
       var $ = cheerio.load(html);
       var titlesArray = [];
@@ -150,38 +156,78 @@ function LoadAllRecipesWebScraper(allrecipes_url) {
           .attr("data-imageurl")
           .replace(/'/g, "") // replace all ' with empty char (g = replace all match chars)
 
+        var ingredientsLink = $(this)
+        .children(".fixed-recipe-card__info")
+        .children(".fixed-recipe-card__h3")
+        .children("a")
+        .attr("href")
+
+        // Loading ingredients before saving
+        LoadIngredients(ingredientsLink, function(ingredientsArray) {
+           result.ingredients = ingredientsArray
+            
           // Default values if one of them not found
-        if(!result.image_path)
-             result.image_path = "https://vignette.wikia.nocookie.net/joke-battles/images/0/0f/Everyday-is-taco-tuesday-t-shirt-teeturtle-marvel_800x.jpg"
+          if(!result.image_path)
+                 result.image_path = "https://vignette.wikia.nocookie.net/joke-battles/images/0/0f/Everyday-is-taco-tuesday-t-shirt-teeturtle-marvel_800x.jpg"
 
-        if(!result.description)
-            result.description = ""
+            if(!result.description)
+                result.description = ""
 
-        // Saving to mongo if not already exists (by recipe name)
-        if (result.name != "" && titlesArray.indexOf(result.name) == -1) {
-            titlesArray.push(result.name);  
+            if(!result.ingredients)
+                result.ingredients = []
 
-            Recipe.countDocuments({ name: result.name }, function(err, test) {
-                if (test === 0) {
-                  var entry = new Recipe(result);
+            // Saving to mongo if not already exists (by recipe name)
+            if (result.name != "" && titlesArray.indexOf(result.name) == -1) {
+                titlesArray.push(result.name);  
+
+                Recipe.countDocuments({ name: result.name }, function(err, test) {
+                    if (test === 0) {
+                        var entry = new Recipe(result);
     
-                  entry.save(function(err, doc) {
-                    if (err) {
-                      console.log(err);
-                    } else {
-                        console.log("--------------------------------------------------");
-                        console.log("Name: " + doc.name)
+                        entry.save(function(err, doc) {
+                            if (err) {
+                                console.log(err);
+                            } else {
+                                console.log("--------------------------------------------------");
+                                console.log("Name: " + doc.name)
+                            }
+                        });
                     }
-                  });
-                }
-              });
-          } else {
-            console.log("Recipe already exists.");
-          }
-      });
+                });
+            } else {
+                console.log("Recipe already exists.");
+            }
+        });
     });
+})
+}
 
-    console.log("Finishing scraper.")
+
+// Getting ingredients of a given url
+function LoadIngredients(allrecipes_ing_url, callback) {
+    request(allrecipes_ing_url, function(error, response, html) {
+        var $ = cheerio.load(html);
+        
+        var ingredientsArray = [];
+        $(".checkList__line").each(function(i, element) {
+          var ingredientName = $(this)        
+          .children("label")
+          .attr("title")
+
+          // Checking if the ingredient is a string and not an Object or undefined types
+          var type = typeof ingredientName
+          if(ingredientName != undefined && type == "string") {
+                var ingredient = {}; 
+                ingredient.name = ingredientName
+                ingredient.amount = 1 
+
+                ingredientsArray.push(ingredient)
+          }
+        })
+
+        console.log("Ingredients found: " + ingredientsArray)
+        callback(ingredientsArray)
+    })
 }
 
 
@@ -597,15 +643,20 @@ app.get('/api/getBranches', function(req, res){
 
 app.listen(8080, function () {
     console.log('NodeJS server listening on port 8080...')
+
+    process.on('uncaughtException', function (err) {
+        // The 'parent' error ocour when we try to access a site with cheerio and we can't 
+        // Mostly because they have blocked us
+        if(err.message = "Cannot read property 'parent' of undefined")
+            console.log("Error! Can't access \'allrecipes.com\'")
+        else
+            console.log("Error! " + err.message)
+    });
+
     LoadScraper()
 })
 
-
-
-const WebSocket = require('ws')
-
 const wss = new WebSocket.Server({ port: 8085 })
-
 wss.on('connection', ws => {
 
     ws.on('message', message => {
