@@ -112,10 +112,20 @@ app.get("/api/freeSearchRecipes", function(req,res) {
     }
 })
 
+// Load several recipes from several pages from 'allrecipes.com' site
+function LoadScraper() {
+    LoadAllRecipesWebScraper("https://www.allrecipes.com/")
+    LoadAllRecipesWebScraper("https://www.allrecipes.com/recipes/276/desserts/cakes/")
+    LoadAllRecipesWebScraper("https://www.allrecipes.com/recipes/78/breakfast-and-brunch/")
+    LoadAllRecipesWebScraper("https://www.allrecipes.com/recipes/201/meat-and-poultry/chicken/")
+    LoadAllRecipesWebScraper("https://www.allrecipes.com/recipes/88/bbq-grilling/")
+    LoadAllRecipesWebScraper("https://www.allrecipes.com/recipes/86/world-cuisine/")
+}
+
 // The actual scraping function
 // Taking recipes data from outsource web pages
-function LoadScraper() {
-    request("https://www.allrecipes.com/", function(error, response, html) {
+function LoadAllRecipesWebScraper(allrecipes_url) {
+    request(allrecipes_url, function(error, response, html) {
       var $ = cheerio.load(html);
       var titlesArray = [];
   
