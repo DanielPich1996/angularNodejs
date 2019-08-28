@@ -3,11 +3,9 @@ const bodyParser = require('body-parser');
 const cors = require('cors')
 const express = require('express')
 const app = express();
-var router = express.Router();
-var path = require("path");
-
 var request = require("request");
 var cheerio = require("cheerio");
+var ahoCorasick = require('ahocorasick');
 
 ObjectId = require('mongodb').ObjectID;
 
@@ -60,19 +58,6 @@ var shoppingListSchema = new Schema({
     ingredients: { type: Array }
 },{ versioinKey: false });
 
-var RecipeSchema = new Schema({
-    name: { type: String },
-    description: { type: String },
-    image_path: { type: String },
-    _user_id: [
-        {
-          type: Schema.Types.ObjectId,
-          ref: "users"
-        }
-      ],
-    ingredients: { type: Array },
-},{ versioinKey: false });
-
 var BranchSchema = new Schema({
     address: {type: String},
     name: {type: String},
@@ -81,7 +66,6 @@ var BranchSchema = new Schema({
 },{ versioinKey: false });
 
 
-//var modelRecipes = mongo.model('recipes', RecipeSchema, 'recipes');
 var Recipe = require("../src/models/Recipe");
 var modelBranch = mongo.model('branch', BranchSchema, 'branch');
 var modelUsers = mongo.model('users', UserSchema, 'users');
@@ -91,8 +75,46 @@ var modelShoppingList = mongo.model('shoppingList', shoppingListSchema, 'shoppin
 
 
 // <------------------------------------Scraper------------------------------------------------------------------------------------->
-function LoadScraper() {
 
+app.get("/api/freeSearchRecipes", function(req,res) {
+    var string = req.query.string;
+    
+    if (string != undefined) {
+        // Total requested searches
+        var stringArr = string.split(" ")
+
+        console.log("The given searches: " + stringArr)
+
+        // The algo
+        var ac = new ahoCorasick(stringArr);
+        // Final result
+        var matchRecipes = []
+
+        getAllRecipes(function(recipes) {
+            if(recipes != "-1") {
+               recipes.forEach(recipe => {
+                    // Search by recipe name and description
+                    var searchString = recipe.name + " " + recipe.description    
+                    var results = ac.search(searchString);
+                
+                    if(results.length > 0)
+                         matchRecipes.push(recipe)    
+                 });
+            }
+
+            console.log("Found matches for free string search: " + matchRecipes.length)
+            res.send(matchRecipes)        
+         })
+    }
+    else {
+        console.log("The search text function MUST receive a string!")
+        res.send("-1")    
+    }
+})
+
+// The actual scraping function
+// Taking recipes data from outsource web pages
+function LoadScraper() {
     request("https://www.allrecipes.com/", function(error, response, html) {
       var $ = cheerio.load(html);
       var titlesArray = [];
@@ -455,71 +477,6 @@ function isRecipeMatch(recipe, string, isCaseSensitive = true) {
 }
 
 
-// <------------------------------------Users--------------------------------------------------------------------------------------->
-
-// app.get("/api/getAllUsers", function(req,res){
-//     modelUsers.find({}, function(err,data) {
-//         if(err){
-//             res.send(err);
-//         }
-//         else {
-//             res.send(data);
-//         }
-//     });
-// })
-
-// In line 89-140 we have defined our API calls, which allow us to store, update, find and delete the user data from the database.
-// app.post("/api/saveUser", function(req,res){
-//     var mod = new model(req.body);
-//     if(req.body.mode == "Save")
-//     {
-//         mod.save(function(err, data) {
-//             if(err) {
-//                 res.send(err);
-//             }
-//             else {
-//                 res.send({data: "Record has been Inserted..!!"});
-//             }
-//         });
-//     }
-//     else 
-//     {
-//         model.findByIdAndUpdate(req.body.id, {name: req.body.name, address: req.body.address},
-//             function(err,data) {
-//                 if(err){
-//                     res.send(err);
-//                 }
-//                 else {
-//                     res.send({data: "Record has been Updated..!!"});
-//                 }
-//         });
-//     }
-// })
-
-// app.post("/api/deleteUser", function(req,res){
-//     console.log("start")
-//     model.remove({ _id: req.body.id }, function(err) {
-//         if(err){
-//             console.log("nope")
-//             res.send(err);
-//         }
-//         else {
-//             res.send({data: "Record has been Deleted..!!"});
-//         }
-//     });
-// })
-
-// app.post("/api/getUser", function(req,res){
-//     model.find({}, function(err,data) {
-//         if(err){
-//             res.send(err);
-//         }
-//         else {
-//             res.send(data);
-//         }
-//     });
-// })
-
 //<-------------------------------   Authenticate  --------------------------------------------------------------------------------->
 
 app.get("/api/login", function(req, res){
@@ -559,33 +516,10 @@ app.get("/api/signup", function(req, res){
 
         }
     });
-    // modelUsers.findOneAndUpdate(emailQ, 
-    //                             { $setOnInsert: { password: req.query.password } }, 
-    //                             { upsert: true },
-    //                             function(err, data){
-    //     if(err){
-    //         res.send("0");
-    //     }else if(data){
-    //         res.send(data._id);
-    //     } else{
-    //         res.send("1");
-    //     }
-    // });
 });
 
 
 // <------------------------------Shopping Lists------------------------------------------------------------------------------------>
-
-// app.get("/api/getAllShoppingLists", function(req,res){
-//     modelShoppingList.find({}, function(err,data) {
-//         if(err){
-//             res.send(err);
-//         }
-//         else {
-//             res.send(data);
-//         }
-//     });
-// })
 
 app.get("/api/getShoppingListById", function(req,res){
     var userId = req.query.userId;
