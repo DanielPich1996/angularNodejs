@@ -1,7 +1,13 @@
+//dependencies
 const bodyParser = require('body-parser');
 const cors = require('cors')
 const express = require('express')
 const app = express();
+var request = require("request");
+var cheerio = require("cheerio");
+var ahoCorasick = require('ahocorasick');
+const WebSocket = require('ws')
+
 ObjectId = require('mongodb').ObjectID;
 
 var mongo = require("mongoose");
@@ -10,6 +16,17 @@ var db = mongo.connect("mongodb://localhost:27017/angular_course", function(err,
     if(err){ console.log(err); } //in case of an error and the DB being unable to connect we throw the error to the user.
     else{ console.log('Connected to ' + db, ' + ', response); }
 });
+
+app.use(express.static(process.cwd() + "/public"));
+//Require set up handlebars
+var exphbs = require("express-handlebars");
+app.engine(
+  "handlebars",
+  exphbs({
+    defaultLayout: "main"
+  })
+);
+app.set("view engine", "handlebars");
 
 
 app.use(cors());
@@ -29,9 +46,6 @@ app.use(function (req, res, next) {
     next();
 });
 
-
-
-// Line 26–31 helps us define our database schema. In our example we are only going to store the name and address of the user which are both Strings.
 var Schema = mongo.Schema;
 
 var UserSchema = new Schema({
@@ -45,14 +59,6 @@ var shoppingListSchema = new Schema({
     ingredients: { type: Array }
 },{ versioinKey: false });
 
-var RecipeSchema = new Schema({
-    name: { type: String },
-    description: { type: String },
-    image_path: { type: String },
-    _user_id: { type: String },
-    ingredients: { type: Array },
-},{ versioinKey: false });
-
 var BranchSchema = new Schema({
     address: {type: String},
     name: {type: String},
@@ -61,13 +67,168 @@ var BranchSchema = new Schema({
 },{ versioinKey: false });
 
 
-var modelRecipes = mongo.model('recipes', RecipeSchema, 'recipes');
+var Recipe = require("../src/models/Recipe");
 var modelBranch = mongo.model('branch', BranchSchema, 'branch');
 var modelUsers = mongo.model('users', UserSchema, 'users');
 var modelShoppingList = mongo.model('shoppingList', shoppingListSchema, 'shoppingList');
 
 
 
+// <------------------------------------Scraper------------------------------------------------------------------------------------->
+
+app.get("/api/freeSearchRecipes", function(req,res) {
+    var string = req.query.string;
+    
+    if (string != undefined) {
+        // Total requested searches
+        var stringArr = string.split(" ")
+
+        console.log("The given searches: " + stringArr)
+
+        // The algo
+        var ac = new ahoCorasick(stringArr);
+        // Final result
+        var matchRecipes = []
+
+        getAllRecipes(function(recipes) {
+            if(recipes != "-1") {
+               recipes.forEach(recipe => {
+                    // Search by recipe name and description
+                    var searchString = recipe.name + " " + recipe.description    
+                    var results = ac.search(searchString);
+                
+                    if(results.length > 0)
+                         matchRecipes.push(recipe)    
+                 });
+            }
+
+            console.log("Found matches for free string search: " + matchRecipes.length)
+            res.send(matchRecipes)        
+         })
+    }
+    else {
+        console.log("The search text function MUST receive a string!")
+        res.send("-1")    
+    }
+})
+
+// Load several recipes from several pages from 'allrecipes.com' site
+function LoadScraper() {
+    try {
+        LoadAllRecipesWebScraper("https://www.allrecipes.com/")
+        LoadAllRecipesWebScraper("https://www.allrecipes.com/recipes/276/desserts/cakes/")
+        LoadAllRecipesWebScraper("https://www.allrecipes.com/recipes/78/breakfast-and-brunch/")
+        LoadAllRecipesWebScraper("https://www.allrecipes.com/recipes/201/meat-and-poultry/chicken/")
+        LoadAllRecipesWebScraper("https://www.allrecipes.com/recipes/88/bbq-grilling/")
+        LoadAllRecipesWebScraper("https://www.allrecipes.com/recipes/86/world-cuisine/")
+    } catch (error) {
+        console.log("Can't access \'allrecipes.com\'")
+    }   
+}
+
+// The actual scraping function
+// Taking recipes data from outsource web pages
+function LoadAllRecipesWebScraper(allrecipes_url) {
+    console.log("Start scraper for " + allrecipes_url)
+
+    request(allrecipes_url, function(error, response, html) {
+      var $ = cheerio.load(html);
+      var titlesArray = [];
+  
+      $(".fixed-recipe-card").each(function(i, element) {
+        var result = {}; 
+        result._user_id = ""
+
+        result.name = $(this)        
+          .children(".fixed-recipe-card__info")
+          .children(".fixed-recipe-card__h3")
+          .children("a")
+          .children("span")
+          .text();
+        result.description = $(this)
+          .children(".fixed-recipe-card__info")
+          .children("a")
+          .children(".fixed-recipe-card__description")
+          .contents()
+          .text()
+        result.image_path = $(this)        
+          .children(".favorite")
+          .attr("data-imageurl")
+          .replace(/'/g, "") // replace all ' with empty char (g = replace all match chars)
+
+        var ingredientsLink = $(this)
+        .children(".fixed-recipe-card__info")
+        .children(".fixed-recipe-card__h3")
+        .children("a")
+        .attr("href")
+
+        // Loading ingredients before saving
+        LoadIngredients(ingredientsLink, function(ingredientsArray) {
+           result.ingredients = ingredientsArray
+            
+          // Default values if one of them not found
+          if(!result.image_path)
+                 result.image_path = "https://vignette.wikia.nocookie.net/joke-battles/images/0/0f/Everyday-is-taco-tuesday-t-shirt-teeturtle-marvel_800x.jpg"
+
+            if(!result.description)
+                result.description = ""
+
+            if(!result.ingredients)
+                result.ingredients = []
+
+            // Saving to mongo if not already exists (by recipe name)
+            if (result.name != "" && titlesArray.indexOf(result.name) == -1) {
+                titlesArray.push(result.name);  
+
+                Recipe.countDocuments({ name: result.name }, function(err, test) {
+                    if (test === 0) {
+                        var entry = new Recipe(result);
+    
+                        entry.save(function(err, doc) {
+                            if (err) {
+                                console.log(err);
+                            } else {
+                                console.log("--------------------------------------------------");
+                                console.log("Name: " + doc.name)
+                            }
+                        });
+                    }
+                });
+            } else {
+                console.log("Recipe already exists.");
+            }
+        });
+    });
+})
+}
+
+
+// Getting ingredients of a given url
+function LoadIngredients(allrecipes_ing_url, callback) {
+    request(allrecipes_ing_url, function(error, response, html) {
+        var $ = cheerio.load(html);
+        
+        var ingredientsArray = [];
+        $(".checkList__line").each(function(i, element) {
+          var ingredientName = $(this)        
+          .children("label")
+          .attr("title")
+
+          // Checking if the ingredient is a string and not an Object or undefined types
+          var type = typeof ingredientName
+          if(ingredientName != undefined && type == "string") {
+                var ingredient = {}; 
+                ingredient.name = ingredientName
+                ingredient.amount = 1 
+
+                ingredientsArray.push(ingredient)
+          }
+        })
+
+        console.log("Ingredients found: " + ingredientsArray)
+        callback(ingredientsArray)
+    })
+}
 
 
 // <------------------------------------Recipes------------------------------------------------------------------------------------->
@@ -90,7 +251,7 @@ app.get("/api/getAllUserRecipes", function(req,res) {
 app.get("/api/getRecipe", function(req,res){
 	
 	var id = req.query.id;
-	modelRecipes.findOne({_id: id}, function(err,data) {
+	Recipe.findOne({_id: id}, function(err,data) {
         if(err || data == null){
 			console.log("A recipe with id " + id + " wasn't found");
 			
@@ -110,7 +271,7 @@ app.get("/api/getRecipe", function(req,res){
 app.get("/api/getRecipeByName", function(req,res){
 	
 	var recipeName = req.query.name;
-	modelRecipes.findOne({name: recipeName}, function(err,data) {
+	Recipe.findOne({name: recipeName}, function(err,data) {
         if(err || data == null){
 			console.log("A recipe with the name " + recipeName + " wasn't found");
 			
@@ -153,7 +314,7 @@ app.get("/api/searchRecipe", function(req,res){
 app.get("/api/deleteRecipe", function(req,res){
 
 	var id = req.query.id;
-    modelRecipes.deleteOne({_id: id}, function(err) {
+    Recipe.deleteOne({_id: id}, function(err) {
         if(err){
             console.log(err)
             res.send("-1");
@@ -196,7 +357,7 @@ app.get("/api/addNewRecipe", function(req,res){
             "ingredients": ingredients
         };
      
-        modelRecipes.create(newRecipe, function(err, data) {
+        Recipe.create(newRecipe, function(err, data) {
             if(err) {
                 console.log(err)
                 res.send("-1");
@@ -240,7 +401,7 @@ app.get("/api/updateRecipe", function(req,res){
         if (req.query.image_path) newValues.image_path = req.query.image_path;
         if (req.query.ingredients) newValues.ingredients = ingredients;
  
-        modelRecipes.updateOne(searchQuery, newValues, function(err, updated_data) {
+        Recipe.updateOne(searchQuery, newValues, function(err, updated_data) {
             if(err) {
                 console.log(err)
                 res.send("-1");
@@ -256,7 +417,7 @@ app.get("/api/updateRecipe", function(req,res){
 
 app.get("/api/getRecipesAmount", function(req, res){
     var recipeName = req.query.name; 
-    modelRecipes.mapReduce(
+    Recipe.mapReduce(
         mapFunction, reduceFunction, { out: "totals", query: {name: recipeName}}, 
         function(err, data){
                 if(err){
@@ -287,7 +448,7 @@ app.get("/api/getUserTotalIngredientsAmount", function(req,res) {
     }
     else
     {
-        modelRecipes.aggregate([
+        Recipe.aggregate([
 
             // applying group for docs that contains this user id
             {$match:{"_user_id": user_id}},
@@ -313,7 +474,7 @@ app.get("/api/getUserTotalIngredientsAmount", function(req,res) {
 
 app.get("/api/getRecipeAmount", function(req,res){	
         var recipeName = req.query.name;
-        modelRecipes.find({name: recipeName}, function(err,data) {
+        Recipe.find({name: recipeName}, function(err,data) {
             if(err || data == null){
                 console.log("A recipe with the name " + recipeName + " wasn't found");
                 
@@ -334,7 +495,7 @@ app.get("/api/getRecipeAmount", function(req,res){
 function getAllRecipes(callback, printToConsole = true) {
 
     console.log("Getting all recipes")
-    modelRecipes.aggregate([
+    Recipe.aggregate([
 		{ $lookup:
 			{
 				from: 'users',
@@ -358,7 +519,7 @@ function getAllRecipes(callback, printToConsole = true) {
 function getAllUserRecipes(userId, callback, printToConsole = true) {
 
     console.log("Getting all recipes by user id " + userId)
-	modelRecipes.find({_user_id: userId}, function(err,data) {
+	Recipe.find({_user_id: userId}, function(err,data) {
         if(err){
 			console.log(err);
             callback("-1");
@@ -519,17 +680,24 @@ app.get('/api/getBranches', function(req, res){
     })
 })
 
-
 app.listen(8080, function () {
     console.log('NodeJS server listening on port 8080...')
-})
-
 
 //<-----------------------------------------------WebSocket---------------------------------->
 const WebSocket = require('ws')
+    process.on('uncaughtException', function (err) {
+        // The 'parent' error ocour when we try to access a site with cheerio and we can't 
+        // Mostly because they have blocked us
+        if(err.message = "Cannot read property 'parent' of undefined")
+            console.log("Error! Can't access \'allrecipes.com\'")
+        else
+            console.log("Error! " + err.message)
+    });
+
+    LoadScraper()
+})
 
 const wss = new WebSocket.Server({ port: 8085 })
-
 wss.on('connection', ws => {
 
     ws.on('message', message => {
