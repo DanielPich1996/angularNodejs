@@ -10,7 +10,7 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
   styleUrls: ['./recipe-detail.component.css']
 })
 export class RecipeDetailComponent implements OnInit {
-
+  amountStr = "";
   recipe:Recipe;
   id: String;
 
@@ -25,6 +25,7 @@ export class RecipeDetailComponent implements OnInit {
       this.recipe = this.route.snapshot.data.recipe;
       this.id = params['id'];
       console.log(this.recipe);
+      this.getAmountByName();
     });
   }
 
@@ -42,4 +43,13 @@ export class RecipeDetailComponent implements OnInit {
     });
     this.router.navigate(['/recipes']);
   }
+
+  getAmountByName(){
+    this.recipeService.getAmountByName(this.recipe.name).subscribe(res => {
+      if (res != "-1"){
+        this.amountStr = "there is " + res + " " + this.recipe.name + " recipes";
+      }
+    });
+  }
+
 }

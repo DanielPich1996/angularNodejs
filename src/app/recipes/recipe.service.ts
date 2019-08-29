@@ -135,4 +135,11 @@ export class RecipeService {
         }        
        });
     }
+
+    getAmountByName(name){
+        return this.http.get("http://localhost:8080/api/getRecipeAmount/?name=" + name).map(response => {
+            const json = response.json();
+            return json;
+        })
+    }
 }
