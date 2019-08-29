@@ -254,6 +254,28 @@ app.get("/api/updateRecipe", function(req,res){
     } 
 })
 
+app.get("/api/getRecipesAmount", function(req, res){
+    var recipeName = req.query.name; 
+    modelRecipes.mapReduce(
+        mapFunction, reduceFunction, { out: "totals", query: {name: recipeName}}, 
+        function(err, data){
+                if(err){
+                    console.log(err);
+                }else{
+                    console.log(data);
+                }
+        }
+    );
+});
+
+mapFunction = function(){
+    emit(this.name, this._user_id);
+};
+
+reduceFunction = function(name, users){
+    return  users.length;
+};
+
 app.get("/api/getUserTotalIngredientsAmount", function(req,res) {
     
     var user_id = req.query.userId
@@ -261,7 +283,7 @@ app.get("/api/getUserTotalIngredientsAmount", function(req,res) {
     if(user_id == undefined)
     {
         console.log("Operation must recieve a user id!");
-        res.send(-1);
+        res.send("-1");
     }
     else
     {
@@ -288,6 +310,24 @@ app.get("/api/getUserTotalIngredientsAmount", function(req,res) {
         });
     }
 })
+
+app.get("/api/getRecipeAmount", function(req,res){	
+        var recipeName = req.query.name;
+        modelRecipes.find({name: recipeName}, function(err,data) {
+            if(err || data == null){
+                console.log("A recipe with the name " + recipeName + " wasn't found");
+                
+                if(err != null)
+                    console.log(err);
+                
+                res.send("-1");
+            }
+            else {
+                console.log("Got recipe by name " + recipeName +" "+data.length);
+                res.send(data.length.toString());
+            }
+        });
+});
 
 
 // Getting all existing recipes
@@ -485,7 +525,7 @@ app.listen(8080, function () {
 })
 
 
-
+//<-----------------------------------------------WebSocket---------------------------------->
 const WebSocket = require('ws')
 
 const wss = new WebSocket.Server({ port: 8085 })
