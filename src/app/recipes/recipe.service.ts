@@ -37,18 +37,15 @@ export class RecipeService {
                     var recipe_description = recipe_data.description;
                     var recipe_image_path = recipe_data.image_path;
                     var ingredients_array = recipe_data.ingredients;
+                    var userId = recipe_data._user_id;
                     console.log(recipe_data.ingredients);
 
-                    recipes.push(new Recipe(recipe_id, recipe_name, recipe_description, recipe_image_path, ingredients_array))
+                    recipes.push(new Recipe(recipe_id, recipe_name, recipe_description, recipe_image_path, ingredients_array, userId))
                 }
                 console.log(recipes)
                 this.recipes = recipes
                 return recipes
             });
-    }
-
-    addIngredientsToSL(ingredients: Ingredient[]){
-        this.slService.addIngredients(ingredients);
     }
 
     getRecipes(){
@@ -127,7 +124,8 @@ export class RecipeService {
                                       json["name"], 
                                       json["description"],
                                       json["image_path"], 
-                                      json["ingredients"]);
+                                      json["ingredients"],
+                                      json["_user_id"]);
             console.log(recipe);
             return recipe;
         } else {
