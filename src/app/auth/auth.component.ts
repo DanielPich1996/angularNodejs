@@ -33,24 +33,26 @@ export class AuthComponent implements OnInit {
     if(this.isLoginMode){
       this.authService.login(email, password).subscribe(res => {
         console.log(res);
-        if(res == "0"){
+        if(res == "-1"){
           this.error = "email or password incorrect"
         }else{
           this.router.navigate(['/recipes']);
         }
       }, err => {
-        this.error = err
+        this.error = "email or password incorrect"
+        console.log(err)
       }); 
     }else{
 
       this.authService.signUp(email, password).subscribe(res => {
-        if(res == "0"){
+        if(res == "-1"){
           this.error = "user exist"
         }else{
           this.router.navigate(['/recipes'])
         }
       }, err => {
-
+        this.error = "user exist"
+        console.log(err)
       });
     }
   } 

@@ -18,6 +18,7 @@ export class HeaderComponent implements OnDestroy{
   constructor(private authService: AuthService,
               private router: Router,
               private wsService: WebsoketService){
+                
     this.wsSubscription = this.wsService.createObservableSocket("ws://localhost:8085").subscribe(data => {
       this.usersCount = +data;
       console.log(data);

@@ -81,4 +81,14 @@ export class ShoppingListService {
             }
         ); 
     }
+
+    getIngredientsCount(){
+        const userId = this.authService.getUserId();
+        return this.http.get("http://localhost:8080/api/getUserTotalIngredientsAmount/?userId=" + userId ).map(
+            data => {
+                var json = data.json();
+                return json;
+            }
+        ); 
+    }
 }

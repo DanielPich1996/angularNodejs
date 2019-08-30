@@ -15,6 +15,7 @@ export class ShoppingListComponent implements OnInit, OnDestroy {
   filterMax=999;
   filterName = '';
   searchIsAnabaled = false;
+  ingredientsCount : number;
 
   constructor(private slService:ShoppingListService) { }
 
@@ -22,10 +23,13 @@ export class ShoppingListComponent implements OnInit, OnDestroy {
     this.slService.getShoppingList().subscribe(res => {
       this.ingridients = this.slService.getIngredients();
     });
+
+    this.getIngredientCount();
     
     this.subscription = this.slService.ingredientChanged.subscribe(
       (ingredients:Ingredient[]) => {
         this.ingridients = ingredients;
+        this.ingredientsCount = ingredients.length;
       }
     );
   }
@@ -43,5 +47,13 @@ export class ShoppingListComponent implements OnInit, OnDestroy {
     this.filterMin=0;
     this.filterMax=999;
     this.filterName = '';
+  }
+
+  getIngredientCount(){
+    this.slService.getIngredientsCount().subscribe(res => {
+      if(res != -1){
+        this.ingredientsCount = +res[0].total;
+      }
+    });
   }
 }

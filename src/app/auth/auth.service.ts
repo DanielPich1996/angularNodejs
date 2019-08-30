@@ -14,7 +14,9 @@ export class AuthService {
                   "email=" + email+ 
                   "&&password=" + password).map(data => {
                     var id = data.json();
-                    this.saveId(id);
+                    if (id != "-1"){
+                      this.saveId(id);
+                    }
                     return id;
                   });
   }
@@ -28,7 +30,9 @@ export class AuthService {
                   "email=" + email+ 
                   "&&password=" + password).map(data => {
                     var id = data.json();
-                    this.saveId(id);
+                    if (id != "-1"){
+                      this.saveId(id);
+                    }
                     return id;
                    });
   }

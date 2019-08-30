@@ -72,6 +72,11 @@
     </ul>
   </div>
 </div>
+<div class="row" *ngIf="ingredientsCount > 0">
+  <div class="col-xs-12">
+      <h5> Number of ingredients: {{ ingredientsCount }} </h5>
+  </div>
+</div>
 <div class="row">
   <div appGraph></div>
 </div>

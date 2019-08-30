@@ -579,11 +579,11 @@ app.get("/api/login", function(req, res){
 
     modelUsers.findOne(query, function(err, data){
         if(err ){
-            res.send(err);
+            res.send("-1");
         }else if(data){
             res.send(data._id);
         } else{
-            res.send("0");
+            res.send("-1");
         }
     });
 });
@@ -595,14 +595,14 @@ app.get("/api/signup", function(req, res){
                 "password": req.query.password}
     modelUsers.findOne(emailQ, function(err, data){
         if(err){
-            res.send("0");
+            res.send("-1");
         }else{
             if(data){
-                res.send("0");
+                res.send("-1");
             }else{
                 modelUsers.create(user, function(err, data){
                     if(err){
-                        res.send("0");
+                        res.send("-1");
                     }else{
                         res.send(data._id)
                     }
