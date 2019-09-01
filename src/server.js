@@ -75,13 +75,13 @@ var modelShoppingList = mongo.model('shoppingList', shoppingListSchema, 'shoppin
 
 
 // <------------------------------------Scraper------------------------------------------------------------------------------------->
-
+// To Do
 app.get("/api/freeSearchRecipes", function(req,res) {
     var string = req.query.string;
     
     if (string != undefined) {
         // Total requested searches
-        var stringArr = string.split(" ")
+        var stringArr = string.toLocaleLowerCase().split(" ")
 
         console.log("The given searches: " + stringArr)
 
@@ -95,7 +95,7 @@ app.get("/api/freeSearchRecipes", function(req,res) {
                recipes.forEach(recipe => {
                     // Search by recipe name and description
                     var searchString = recipe.name + " " + recipe.description    
-                    var results = ac.search(searchString);
+                    var results = ac.search(searchString.toLocaleLowerCase());
                 
                     if(results.length > 0)
                          matchRecipes.push(recipe)    
@@ -234,6 +234,7 @@ function LoadIngredients(allrecipes_ing_url, callback) {
 // <------------------------------------Recipes------------------------------------------------------------------------------------->
 
 // Get all recipes and full user data of the creator of the recipe
+//TO-DO
 app.get("/api/getAllRecipes", function(req,res) {
      getAllRecipes(function(data) {        
          res.send(data);
@@ -579,11 +580,11 @@ app.get("/api/login", function(req, res){
 
     modelUsers.findOne(query, function(err, data){
         if(err ){
-            res.send(err);
+            res.send("-1");
         }else if(data){
             res.send(data._id);
         } else{
-            res.send("0");
+            res.send("-1");
         }
     });
 });
@@ -595,14 +596,14 @@ app.get("/api/signup", function(req, res){
                 "password": req.query.password}
     modelUsers.findOne(emailQ, function(err, data){
         if(err){
-            res.send("0");
+            res.send("-1");
         }else{
             if(data){
-                res.send("0");
+                res.send("-1");
             }else{
                 modelUsers.create(user, function(err, data){
                     if(err){
-                        res.send("0");
+                        res.send("-1");
                     }else{
                         res.send(data._id)
                     }

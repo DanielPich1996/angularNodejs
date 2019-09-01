@@ -31,14 +31,14 @@ export class WebsoketService {
    );
  }
 
- sendMessage(message: string): string {
-   if (this.ws.readyState === this.socketIsOpen) {
-      this.ws.send(message);
-      return `Sent to server ${message}`;
-   } else {
-     return 'Message was not sent - the socket is closed';
-    }
- }
+//  sendMessage(message: string): string {
+//    if (this.ws.readyState === this.socketIsOpen) {
+//       this.ws.send(message);
+//       return `Sent to server ${message}`;
+//    } else {
+//      return 'Message was not sent - the socket is closed';
+//     }
+//  }
 }
 
 
