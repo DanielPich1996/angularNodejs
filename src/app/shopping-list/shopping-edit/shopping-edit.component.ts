@@ -15,6 +15,7 @@ export class ShoppingEditComponent implements OnInit, OnDestroy {
   editMode = false;
   editedItemIndex : number;
   editedItem : Ingredient;
+  totalIngredientUse = 0;
 
   constructor( private slService:ShoppingListService) { }
 
@@ -60,5 +61,16 @@ export class ShoppingEditComponent implements OnInit, OnDestroy {
     this.slService.updateShoppingList().subscribe(data => {
       
     });
+  }
+
+  getTotalUse(str: string){
+    if(str == '' || str == null){
+      this.totalIngredientUse = 0;
+    } else{
+      this.slService.getTotalUseInRecipes(str).subscribe(val => {
+        this.totalIngredientUse = +val;
+      })
+    }
+    
   }
 }

@@ -7,6 +7,7 @@ var request = require("request");
 var cheerio = require("cheerio");
 var ahoCorasick = require('ahocorasick');
 const WebSocket = require('ws')
+var createCountMinSketch = require("count-min-sketch")
 
 ObjectId = require('mongodb').ObjectID;
 
@@ -73,6 +74,31 @@ var modelUsers = mongo.model('users', UserSchema, 'users');
 var modelShoppingList = mongo.model('shoppingList', shoppingListSchema, 'shoppingList');
 
 
+//<----------------------- CountMinSketch ----------------------->
+var sketch = createCountMinSketch()
+
+setUpCountMinSketch = function(){    
+    getAllRecipes(recipes => {
+        console.log("-----------createCountMinSketch------------")
+
+        recipes.forEach(recipe => {
+
+            recipe.ingredients.forEach(ing => {
+
+                console.log(ing.name.toLocaleLowerCase() + "  " + ing.amount)
+                sketch.update(ing.name.toLocaleLowerCase(), +ing.amount);
+            })
+        })
+    })   
+}
+
+setUpCountMinSketch()
+
+app.get("/api/getTotalUseInRecipes", function(req, res){
+    var name = req.query.name;
+    console.log(sketch.query(name).toString())
+    res.send(sketch.query(name.toLocaleLowerCase()).toString());  
+})
 
 // <------------------------------------Scraper------------------------------------------------------------------------------------->
 app.get("/api/freeSearchRecipes", function(req,res) {
@@ -345,6 +371,7 @@ app.get("/api/addNewRecipe", function(req,res){
         for(ing of ings){
             const temp = ing.split(':')
             ingredients.push({name:temp[0], amount: +temp[1]});
+            sketch.update(temp[0].toLocaleLowerCase(), +temp[1])
         }
 
         var newRecipe = 
@@ -355,7 +382,8 @@ app.get("/api/addNewRecipe", function(req,res){
             "_user_id": user_id,   
             "ingredients": ingredients
         };
-     
+        
+
         Recipe.create(newRecipe, function(err, data) {
             if(err) {
                 console.log(err)
@@ -384,6 +412,22 @@ app.get("/api/updateRecipe", function(req,res){
         // Update documents that match to the query
         var searchQuery = { _id: recipeId };
 
+        Recipe.findOne(searchQuery, function(err,data) {
+            if(err || data == null){
+                console.log("A recipe with id " + id + " wasn't found");
+                
+                if(err != null)
+                    console.log(err);
+                
+                res.send("-1");
+            }
+            else {
+                data.ingredients.forEach(ing => {
+                    sketch.update(ing.name.toLocaleLowerCase(), -(+ing.amount))
+                })
+            }
+        });
+
         // Updating the requested fields ONLY!
         var newValues = {};
 
@@ -393,6 +437,7 @@ app.get("/api/updateRecipe", function(req,res){
         for(ing of ings){
             const temp = ing.split(':')
             ingredients.push({name:temp[0], amount: +temp[1]});
+            sketch.update(temp[0].toLocaleLowerCase(), +temp[1])
         }
 
         if (req.query.name) newValues.name = req.query.name;

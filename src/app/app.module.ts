@@ -31,6 +31,7 @@ import { GraphDirective } from './shared/graph.directive';
 import { RecipeFilterPipe } from './recipes/recipe-list/pipes/recipe-filter.pipe';
 import { IngedientsFilterPipe } from './shopping-list/pipes/ingedients-filter.pipe';
 import { ConectedUsersPipe } from './header/conected-users.pipe';
+import { IngredientUsePipePipe } from './shopping-list/pipes/ingredient-use-pipe.pipe';
 
 @NgModule({
   declarations: [
@@ -50,7 +51,8 @@ import { ConectedUsersPipe } from './header/conected-users.pipe';
     GraphDirective,
     RecipeFilterPipe,
     IngedientsFilterPipe,
-    ConectedUsersPipe
+    ConectedUsersPipe,
+    IngredientUsePipePipe
   ],
   imports: [
     BrowserModule,

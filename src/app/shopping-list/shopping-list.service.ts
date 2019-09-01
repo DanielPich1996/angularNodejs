@@ -89,4 +89,14 @@ export class ShoppingListService {
             }
         ); 
     }
+
+
+    getTotalUseInRecipes(name: string){
+        return this.http.get("http://localhost:8080/api/getTotalUseInRecipes/?name=" + name).map(
+            data => {
+                var json = data.json();
+                return json;
+            }
+        ); 
+    }
 }

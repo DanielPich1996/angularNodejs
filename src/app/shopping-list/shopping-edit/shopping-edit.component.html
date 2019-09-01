@@ -10,7 +10,8 @@
             class="form-control"
             name="name"
             ngModel
-            required>
+            required 
+            (input)="getTotalUse(f.value.name)">
         </div>
         <div class="col-sm-2 form-group">
           <label for="amount" class="">Amount</label>
@@ -22,6 +23,11 @@
             ngModel
             required
             pattern="^[1-9]+[0-9]*$">
+        </div>
+        <div class="col-sm-5">
+          <p style="margin-top: 27px;">
+              {{ totalIngredientUse | ingredientUsePipe: f.value.name }}
+          </p>   
         </div>
       </div>
       <div class="row">
