@@ -16,15 +16,32 @@
           <div class="row">
             <div class="col-xs-12">
               <div class="form-group">
-                <label for="name"> Name </label>
+                <label for="name"> Search </label>
                 <input type="text"
                        id="name" 
                        class="form-control"
                        name="filterName"
+                       (input)="onSearchChange()"
                        [(ngModel)]="filterName">
               </div>
             </div>
           </div>
+
+
+          <div class="row">
+              <div class="col-xs-12">
+                <div class="form-check">
+                  <input type="checkbox" 
+                         class="form-check-input" 
+                         id="showMy"
+                         name="showMy"
+                         (input)="showMyChecked()"
+                         [(ngModel)]="showMy">
+                  <label class="form-check-label" for="showMy">Show only my recipes</label>
+              </div>
+            </div>
+          </div>
+          
 
           <div class="row">
             <div class="col-xs-6">
@@ -68,7 +85,7 @@
 <div class="row">
   <div class="col-xs-12">
     <app-recipe-item 
-      *ngFor="let recipeEl of recipes | recipeFilter:filterName:filterMin:filterMax; let i = index"
+      *ngFor="let recipeEl of recipes | recipeFilter:filterMin:filterMax:showMy; let i = index"
       [recipe]="recipeEl"
       [index]="i">
     </app-recipe-item>

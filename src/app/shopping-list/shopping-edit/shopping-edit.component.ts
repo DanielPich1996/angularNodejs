@@ -58,7 +58,7 @@ export class ShoppingEditComponent implements OnInit, OnDestroy {
 
   onSaveShoppingList(){
     this.slService.updateShoppingList().subscribe(data => {
-
+      
     });
   }
 }

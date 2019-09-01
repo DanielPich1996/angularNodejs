@@ -8,7 +8,7 @@ import { Subscription } from 'rxjs/Subscription';
   templateUrl: './shopping-list.component.html',
   styleUrls: ['./shopping-list.component.css']
 })
-export class ShoppingListComponent implements OnInit, OnDestroy {
+export class ShoppingListComponent implements OnInit {
   ingridients:Ingredient[] = [];
   subscription : Subscription;
   filterMin=0;
@@ -26,7 +26,7 @@ export class ShoppingListComponent implements OnInit, OnDestroy {
 
     this.getIngredientCount();
     
-    this.subscription = this.slService.ingredientChanged.subscribe(
+    this.slService.ingredientChanged.subscribe(
       (ingredients:Ingredient[]) => {
         this.ingridients = ingredients;
         this.ingredientsCount = ingredients.length;
@@ -38,9 +38,6 @@ export class ShoppingListComponent implements OnInit, OnDestroy {
     this.slService.startedEditing.next(index);
   }
 
-  ngOnDestroy(){
-    this.subscription.unsubscribe();
-  }
 
   showSearch(){
     this.searchIsAnabaled = !this.searchIsAnabaled;

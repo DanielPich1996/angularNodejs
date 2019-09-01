@@ -17,6 +17,9 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   searchIsAnabaled = false;
   subscription: Subscription
   recipes:Recipe[] = [];
+  searchRecipes: Recipe[] = [];
+  allRecipes: Recipe[] = [];
+  showMy = false;
 
   constructor(private recipeService: RecipeService, 
               private router: Router,
@@ -24,12 +27,14 @@ export class RecipeListComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.recipeService.getAllRecipes().subscribe(new_recipes => {      
-        this.recipes = new_recipes.slice();
+        this.allRecipes = new_recipes.slice();
+        this.recipes = this.allRecipes;
       }, err => console.log(err)
     ); 
 
     this.subscription = this.recipeService.recipesChanged.subscribe(newRecipes => {
-      this.recipes = newRecipes
+      this.allRecipes = newRecipes.slice();
+      this.recipes = this.allRecipes;
     });
   }
 
@@ -48,4 +53,20 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     this.filterMax=999;
     this.filterName = '';
   }
+
+  onSearchChange(){
+    if(this.filterName == null || this.filterName == ''){
+      this.recipes = this.allRecipes;
+    } else{
+      this.recipeService.freeSearchRecipes(this.filterName).subscribe(recipes => {
+        this.recipes = recipes;
+        console.log(recipes);
+      });
+    }
+  }
+
+  showMyChecked(){
+    console.log(this.showMy);
+  }
+
 }

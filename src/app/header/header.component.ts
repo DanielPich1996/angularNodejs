@@ -33,9 +33,9 @@ export class HeaderComponent implements OnDestroy{
     this.router.navigate(['/auth']);
   }
 
-  sendMessageToServer(){
-    this.status = this.wsService.sendMessage("Hello from client");
-   }
+  // sendMessageToServer(){
+  //   this.status = this.wsService.sendMessage("Hello from client");
+  //  }
 
   closeSocket(){
     this.wsSubscription.unsubscribe();

@@ -23,7 +23,8 @@ export class RecipeService {
 
     getAllRecipes(): Observable<Recipe[]> {
         var userId = this.authService.getUserId();
-        return this.http.get('http://localhost:8080/api/getAllUserRecipes?userId=' + userId )
+        //return this.http.get('http://localhost:8080/api/getAllUserRecipes?userId=' + userId )
+        return this.http.get('http://localhost:8080/api/getallRecipes')
             .map((response: Response) => {
 
                 var res = response.json()
@@ -106,7 +107,7 @@ export class RecipeService {
             let index;
             for(let i = 0; i< this.recipes.length; i++){
                 if (this.recipes[i].id === id){
-                  index = 1
+                  index = i;
                 }
             }
 
@@ -139,5 +140,31 @@ export class RecipeService {
             const json = response.json();
             return json;
         })
+    }
+
+    freeSearchRecipes(str: string){
+        return this.http.get('http://localhost:8080/api/freeSearchRecipes?string=' + str)
+        .map((response: Response) => {
+
+            var res = response.json()
+            var recipes:Recipe[] =[]
+
+            for (let index = 0; index < res.length; index++) {
+                const recipe_data = res[index];
+
+                var recipe_id = recipe_data._id;
+                var recipe_name = recipe_data.name;
+                var recipe_description = recipe_data.description;
+                var recipe_image_path = recipe_data.image_path;
+                var ingredients_array = recipe_data.ingredients;
+                var userId = recipe_data._user_id;
+                console.log(recipe_data.ingredients);
+
+                recipes.push(new Recipe(recipe_id, recipe_name, recipe_description, recipe_image_path, ingredients_array, userId))
+            }
+            console.log(recipes)
+            this.recipes = recipes
+            return recipes
+        });
     }
 }
