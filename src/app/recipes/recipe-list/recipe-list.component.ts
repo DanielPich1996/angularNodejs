@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Recipe } from '../recipe.model';
 import { RecipeService } from '../recipe.service';
-import { Router, RouterLinkActive, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 
 @Component({
@@ -9,17 +9,21 @@ import { Subscription } from 'rxjs/Subscription';
   templateUrl: './recipe-list.component.html',
   styleUrls: ['./recipe-list.component.css']
 })
+
 export class RecipeListComponent implements OnInit, OnDestroy {
  
   filterMin=0;
   filterMax=999;
   filterName = '';
   searchIsAnabaled = false;
+
+  // display my recipes ONLY
+  showMy = false;
+
   subscription: Subscription
   recipes:Recipe[] = [];
   searchRecipes: Recipe[] = [];
   allRecipes: Recipe[] = [];
-  showMy = false;
 
   constructor(private recipeService: RecipeService, 
               private router: Router,
@@ -37,7 +41,6 @@ export class RecipeListComponent implements OnInit, OnDestroy {
       this.recipes = this.allRecipes;
     });
   }
-
 
   ngOnDestroy(){
     this.subscription.unsubscribe(); 

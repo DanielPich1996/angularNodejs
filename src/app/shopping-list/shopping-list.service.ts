@@ -2,7 +2,6 @@ import { Ingredient } from '../shared/ingridient.model';
 import { EventEmitter, Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import { Http } from '@angular/http';
-import { format } from 'util';
 import { AuthService } from '../auth/auth.service';
 
 @Injectable()
@@ -10,7 +9,7 @@ export class ShoppingListService {
     ingredientChanged = new EventEmitter<Ingredient[]>();
     startedEditing = new Subject<number>();
 
-    constructor( private http:Http , 
+    constructor( private http:Http, 
                  private authService: AuthService){}
 
     private ingridients:Ingredient[] = [];
@@ -62,12 +61,11 @@ export class ShoppingListService {
         for (let ing of this.ingridients){
             shoppingList += ing.name + ":" + ing.amount + ",";
         }
+        
         shoppingList = shoppingList.slice(0, -1);
 
         return this.http.get("http://localhost:8080/api/updateShoppingList?userId=" + userId +
-                      "&&ingredients=" + shoppingList).map(
-            data => {
-            }
+                      "&&ingredients=" + shoppingList).map(data => {}
         ); 
     }
 

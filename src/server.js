@@ -36,7 +36,7 @@ app.use(bodyParser.json({limit:'5mb'}));
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(express.static( __dirname ) );
 
-//Line number 18–24 allows us to define the headers.
+//allows us to define the headers.
 app.use(function (req, res, next) {
     res.setHeader("Content-Security-Policy", "default-src 'self' 'unsafe-inline',img-src *");
     res.setHeader('Access-Control-Allow-Origin', 'http://localhost:4200'); //allows us to define the website we wish to connect to, which in our case is http://localhost:4200.
@@ -123,7 +123,7 @@ app.get("/api/freeSearchRecipes", function(req,res) {
                     var results = ac.search(searchString.toLocaleLowerCase());
                 
                     if(results.length > 0)
-                         matchRecipes.push(recipe)    
+                        matchRecipes.push(recipe)    
                  });
             }
 
@@ -192,7 +192,7 @@ function LoadAllRecipesWebScraper(allrecipes_url) {
            result.ingredients = ingredientsArray
             
           // Default values if one of them not found
-          if(!result.image_path)
+            if(!result.image_path)
                  result.image_path = "https://vignette.wikia.nocookie.net/joke-battles/images/0/0f/Everyday-is-taco-tuesday-t-shirt-teeturtle-marvel_800x.jpg"
 
             if(!result.description)
@@ -250,7 +250,7 @@ function LoadIngredients(allrecipes_ing_url, callback) {
           }
         })
 
-        console.log("Ingredients found: " + ingredientsArray)
+        //console.log("Ingredients found: " + ingredientsArray)
         callback(ingredientsArray)
     })
 }
@@ -727,8 +727,6 @@ app.get('/api/getBranches', function(req, res){
 app.listen(8080, function () {
     console.log('NodeJS server listening on port 8080...')
 
-//<-----------------------------------------------WebSocket---------------------------------->
-const WebSocket = require('ws')
     process.on('uncaughtException', function (err) {
         // The 'parent' error ocour when we try to access a site with cheerio and we can't 
         // Mostly because they have blocked us
@@ -740,6 +738,8 @@ const WebSocket = require('ws')
 
     LoadScraper()
 })
+
+//<-----------------------------------------------WebSocket---------------------------------->
 
 const wss = new WebSocket.Server({ port: 8085 })
 wss.on('connection', ws => {

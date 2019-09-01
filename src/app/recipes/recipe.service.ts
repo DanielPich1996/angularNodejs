@@ -17,13 +17,13 @@ export class RecipeService {
     private recipes:Recipe[];
     recipeSelected = new EventEmitter<Recipe>();
 
-    constructor(private http:Http, 
-                private slService:ShoppingListService,
-                private authService: AuthService) {}
+    constructor(private http:Http, private authService: AuthService) {}
 
+    // returns an observable of type recipe array
     getAllRecipes(): Observable<Recipe[]> {
-        var userId = this.authService.getUserId();
+        //var userId = this.authService.getUserId();
         //return this.http.get('http://localhost:8080/api/getAllUserRecipes?userId=' + userId )
+
         return this.http.get('http://localhost:8080/api/getallRecipes')
             .map((response: Response) => {
 
@@ -43,23 +43,26 @@ export class RecipeService {
 
                     recipes.push(new Recipe(recipe_id, recipe_name, recipe_description, recipe_image_path, ingredients_array, userId))
                 }
+
                 console.log(recipes)
                 this.recipes = recipes
                 return recipes
             });
     }
 
+    // The slice() method returns the selected elements in an array, as a NEW array object
     getRecipes(){
         return this.recipes.slice();
     }
 
-
     addRecipe(recipe: Recipe){
         let ingredients = '';
         var userId = this.authService.getUserId();
+
         for (let ing of recipe.ingredients){
             ingredients += ing.name + ":" + ing.amount + ",";
         }
+
         ingredients = ingredients.slice(0, -1);
 
         return this.http.get("http://localhost:8080/api/addNewRecipe?"+
@@ -83,6 +86,7 @@ export class RecipeService {
         for (let ing of newRecipe.ingredients){
             ingredients += ing.name + ":" + ing.amount + ",";
         }
+
         ingredients = ingredients.slice(0, -1);
 
         return this.http.get("http://localhost:8080/api/updateRecipe?id=" + id +
@@ -108,9 +112,11 @@ export class RecipeService {
             for(let i = 0; i< this.recipes.length; i++){
                 if (this.recipes[i].id === id){
                   index = i;
+                  break;
                 }
             }
 
+            // Removing a recipe at index
             this.recipes.splice(index, 1);
             this.recipesChanged.next(this.recipes.slice());
         });
@@ -142,6 +148,7 @@ export class RecipeService {
         })
     }
 
+    // filter - search by a free string
     freeSearchRecipes(str: string){
         return this.http.get('http://localhost:8080/api/freeSearchRecipes?string=' + str)
         .map((response: Response) => {
@@ -162,6 +169,7 @@ export class RecipeService {
 
                 recipes.push(new Recipe(recipe_id, recipe_name, recipe_description, recipe_image_path, ingredients_array, userId))
             }
+            
             console.log(recipes)
             this.recipes = recipes
             return recipes
