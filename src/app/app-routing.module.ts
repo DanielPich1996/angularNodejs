@@ -29,7 +29,8 @@ const appRoutes: Routes  = [
         component: ShoppingListComponent 
     },
     { path: 'auth', component: AuthComponent},
-    { path: 'about', component: AboutComponent}
+    { path: 'about', component: AboutComponent},
+    { path: "**",redirectTo: 'recipes'}
 ];
 
 @NgModule({

@@ -75,7 +75,6 @@ var modelShoppingList = mongo.model('shoppingList', shoppingListSchema, 'shoppin
 
 
 // <------------------------------------Scraper------------------------------------------------------------------------------------->
-// To Do
 app.get("/api/freeSearchRecipes", function(req,res) {
     var string = req.query.string;
     
@@ -234,7 +233,6 @@ function LoadIngredients(allrecipes_ing_url, callback) {
 // <------------------------------------Recipes------------------------------------------------------------------------------------->
 
 // Get all recipes and full user data of the creator of the recipe
-//TO-DO
 app.get("/api/getAllRecipes", function(req,res) {
      getAllRecipes(function(data) {        
          res.send(data);

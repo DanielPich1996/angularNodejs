@@ -17,7 +17,7 @@
             {{ usersCount | conectedUsers }}
           </a>
         </li>
-        <li>
+        <li *ngIf="userId != null">
           <a role="button"
              style="cursor: pointer;"
              (click)="onLogOut()">
