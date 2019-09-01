@@ -11,6 +11,7 @@
         </button>
     </div> 
 
+    <!-- show div if enabled -->
     <div class="col-xs-12" *ngIf="searchIsAnabaled">
         <form>
           <div class="row">
@@ -23,6 +24,7 @@
                        name="filterName"
                        (input)="onSearchChange()"
                        [(ngModel)]="filterName">
+                       <!-- ngModel - two way binding -->
               </div>
             </div>
           </div>
@@ -70,10 +72,8 @@
             <div class="row">
               <div class="col-xs-6 ">
                 <button type="button"
-
                         (click)="showSearch()"
-                        class="btn btn-danger">Cancle filter
-                </button>
+                        class="btn btn-danger">Cancle filter</button>
               </div>
             </div>
         
@@ -84,6 +84,7 @@
 <hr>
 <div class="row">
   <div class="col-xs-12">
+    <!-- | = pipe -->
     <app-recipe-item 
       *ngFor="let recipeEl of recipes | recipeFilter:filterMin:filterMax:showMy; let i = index"
       [recipe]="recipeEl"

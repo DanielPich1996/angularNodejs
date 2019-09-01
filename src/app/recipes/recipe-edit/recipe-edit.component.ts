@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { Recipe } from '../recipe.model';
-import { Ingredient } from 'src/app/shared/ingridient.model';
 import { RecipeService } from '../recipe.service';
 import { ActivatedRoute, Router, Params } from '@angular/router';
 import { FormGroup, FormControl, FormArray, Validators } from '@angular/forms';
@@ -77,13 +76,10 @@ export class RecipeEditComponent implements OnInit {
     // )
 
     if (this.editMode){
-      this.recipeService.updateRecipe(this.id, this.recipeForm.value).subscribe(res => {
-        
-      });
+      this.recipeService.updateRecipe(this.id, this.recipeForm.value).subscribe(res => {});
     } else {
       console.log(this.recipeForm.value);
-      this.recipeService.addRecipe(this.recipeForm.value).subscribe(res => {   
-      });
+      this.recipeService.addRecipe(this.recipeForm.value).subscribe(res => {});
     }
   }
 
