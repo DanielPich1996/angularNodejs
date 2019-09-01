@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Http } from '@angular/http';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 
 @Injectable()
 export class AuthService {
@@ -9,16 +9,19 @@ export class AuthService {
 
   private userId = null;
 
+  userCanged = new Subject<string>();
+
   signUp(email: string, password: string): Observable<string>{
     return  this.http.get("http://localhost:8080/api/signUp?" +
-                  "email=" + email+ 
-                  "&&password=" + password).map(data => {
-                    var id = data.json();
-                    if (id != "-1"){
-                      this.saveId(id);
-                    }
-                    return id;
-                  });
+      "email=" + email+ 
+      "&&password=" + password).map(data => {
+        var id = data.json();
+        if (id != "-1"){
+          this.saveId(id);
+          this.userCanged.next(id)
+        }
+        return id;
+      });
   }
 
   getUserId(){
@@ -27,14 +30,15 @@ export class AuthService {
 
   login(email: string, password: string): Observable<string>{
     return  this.http.get("http://localhost:8080/api/login?" +
-                  "email=" + email+ 
-                  "&&password=" + password).map(data => {
-                    var id = data.json();
-                    if (id != "-1"){
-                      this.saveId(id);
-                    }
-                    return id;
-                   });
+      "email=" + email+ 
+      "&&password=" + password).map(data => {
+        var id = data.json();
+        if (id != "-1"){
+          this.saveId(id);
+          this.userCanged.next(id)
+        }
+        return id;
+      });
   }
 
   saveId(id: string){
@@ -54,6 +58,7 @@ export class AuthService {
 
   logOut(){
     this.userId = null;
+    this.userCanged.next(null);
     localStorage.removeItem("userId");
   }
 }

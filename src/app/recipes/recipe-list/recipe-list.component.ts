@@ -52,6 +52,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     this.filterMin=0;
     this.filterMax=999;
     this.filterName = '';
+    this.onSearchChange();
   }
 
   onSearchChange(){

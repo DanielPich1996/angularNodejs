@@ -15,7 +15,10 @@ export class GraphDirective implements OnInit{
   
   ngOnInit(){
     
-    this.ingredients = this.slService.getIngredients();
+    this.slService.getShoppingList().subscribe(res => {
+      this.ingredients = this.slService.getIngredients();
+    });
+    
     this.getData();
     this.createChart();
 
