@@ -6,6 +6,11 @@ import { Pipe, PipeTransform } from '@angular/core';
 export class ConectedUsersPipe implements PipeTransform {
 
   transform(value: number): any {
-    return "conected users: " + value;
+    if(value){
+      return "conected users: " + value;
+    }else{
+      return "";
+    }
+    
   }
 }
