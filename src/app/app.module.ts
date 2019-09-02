@@ -32,6 +32,7 @@ import { RecipeFilterPipe } from './recipes/recipe-list/pipes/recipe-filter.pipe
 import { IngedientsFilterPipe } from './shopping-list/pipes/ingedients-filter.pipe';
 import { ConectedUsersPipe } from './header/conected-users.pipe';
 import { IngredientUsePipePipe } from './shopping-list/pipes/ingredient-use-pipe.pipe';
+import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 
 @NgModule({
   declarations: [
@@ -52,7 +53,8 @@ import { IngredientUsePipePipe } from './shopping-list/pipes/ingredient-use-pipe
     RecipeFilterPipe,
     IngedientsFilterPipe,
     ConectedUsersPipe,
-    IngredientUsePipePipe
+    IngredientUsePipePipe,
+    PageNotFoundComponent
   ],
   imports: [
     BrowserModule,

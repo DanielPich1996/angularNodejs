@@ -15,6 +15,8 @@ export class AboutComponent implements OnInit {
   ngOnInit() {
     this.aboutService.getBranches().subscribe(res => {
       this.branches = res.slice();
+    }, err => {
+      alert('Cannot get branches from server')
     });
   }
 }

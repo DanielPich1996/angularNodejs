@@ -11,15 +11,9 @@ export class RecipesComponent implements OnInit {
   selectedRecipe:Recipe;
 
   // dependency injection - brings an instance of recipe service to this component
-  constructor(private recipeService:RecipeService) { }
+  constructor() { }
 
   ngOnInit() {
-    if (this)
-    this.recipeService.recipeSelected.subscribe(
-      (recipe:Recipe) => {
-        this.selectedRecipe = recipe;
-      }
-    );
   }
 
 }

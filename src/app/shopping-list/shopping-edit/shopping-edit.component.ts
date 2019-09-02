@@ -59,7 +59,9 @@ export class ShoppingEditComponent implements OnInit, OnDestroy {
 
   onSaveShoppingList(){
     this.slService.updateShoppingList().subscribe(data => {
-      
+      alert("Shopping list saved sucssesfuly");
+    }, err => {
+      alert("cannot save shopping list tray again");
     });
   }
 
