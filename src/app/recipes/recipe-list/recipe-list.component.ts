@@ -33,7 +33,9 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     this.recipeService.getAllRecipes().subscribe(new_recipes => {      
         this.allRecipes = new_recipes.slice();
         this.recipes = this.allRecipes;
-      }, err => console.log(err)
+      }, err => {
+        alert("Faild load recipes, tray again")
+      }
     ); 
 
     this.subscription = this.recipeService.recipesChanged.subscribe(newRecipes => {

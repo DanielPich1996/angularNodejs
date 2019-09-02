@@ -28,7 +28,6 @@ export class RecipeDetailComponent implements OnInit {
     this.route.params.subscribe(params => {
       this.recipe = this.route.snapshot.data.recipe;
       this.id = params['id'];
-      console.log(this.recipe);
       this.getAmountByName();
       this.currUserId = this.authService.getUserId();
     });
@@ -39,15 +38,22 @@ export class RecipeDetailComponent implements OnInit {
   }
 
   onDeleteRecipe(){
-    this.recipeService.deleteRecipe(this.id).subscribe(res => {});
-    this.router.navigate(['/recipes']);
+    this.recipeService.deleteRecipe(this.id).subscribe(res => {
+      alert("Recipe delited cucssesfuly");
+      this.router.navigate(['/recipes']);
+    }, err => {
+      alert("Faild delite recipe tray again");
+    });
+    
   }
 
   getAmountByName(){
-    this.recipeService.getAmountByName(this.recipe.name).subscribe(res => {
-      if (res != "-1"){
-        this.amountStr = "there is " + res + " " + this.recipe.name + " recipes";
-      }
-    });
+    if(this.recipe){
+      this.recipeService.getAmountByName(this.recipe.name).subscribe(res => {
+        if (res != "-1"){
+          this.amountStr = "there is " + res + " " + this.recipe.name + " recipes";
+        }
+      });
+    }
   }
 }

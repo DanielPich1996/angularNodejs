@@ -72,9 +72,9 @@
     </ul>
   </div>
 </div>
-<div class="row" *ngIf="ingredientsCount > 0">
+<div class="row" *ngIf="ingredientsCount">
   <div class="col-xs-12">
-      <h5> Number of ingredients: {{ ingredientsCount }} </h5>
+      <h5> {{ 'Number of ingredients in your recipes: ' + ingredientsCount }} </h5>
   </div>
 </div>
 <div class="row">

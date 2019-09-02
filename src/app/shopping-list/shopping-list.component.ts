@@ -22,6 +22,8 @@ export class ShoppingListComponent implements OnInit {
   ngOnInit() {
     this.slService.getShoppingList().subscribe(res => {
       this.ingridients = this.slService.getIngredients();
+    }, err => {
+      alert("cannot load shopping list tray again")
     });
 
     this.getIngredientCount();
@@ -29,7 +31,6 @@ export class ShoppingListComponent implements OnInit {
     this.slService.ingredientChanged.subscribe(
       (ingredients:Ingredient[]) => {
         this.ingridients = ingredients;
-        this.ingredientsCount = ingredients.length;
       }
     );
   }
@@ -48,7 +49,7 @@ export class ShoppingListComponent implements OnInit {
 
   getIngredientCount(){
     this.slService.getIngredientsCount().subscribe(res => {
-      if(res != -1){
+      if(res != -1 && res.length > 0){
         this.ingredientsCount = +res[0].total;
       }
     });
