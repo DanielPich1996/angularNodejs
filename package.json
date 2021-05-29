@@ -40,7 +40,7 @@
     "rxjs-compat": "^6.5.2",
     "rxjs-observable": "0.0.7",
     "tslib": "^1.9.0",
-    "ws": "^7.1.2",
+    "ws": "^7.4.6",
     "zone.js": "~0.8.26"
   },
   "devDependencies": {
